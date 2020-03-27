@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8" />
+
+<meta name="generator" content="Hexo 4.1.0" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<title>HA高可用集群搭建 - Gallon</title>
+
+
+    <meta name="description" content="之前已经搭建好了一个集群，传送 这次在原来的基础上做一个双master的高可用集群。 Hadoop HA简介及工作原理Hadoop NameNode官方开始支持HA集群默认是从2.0开始，之前的版本均是不支持NameNode HA的高可用的。 Hadoop HA简介Hadoop-HA集群运作机制介绍 HA即高可用（7*24小时不中断服务） 实现高可用最关键的是消除单点故障 分成各个组件的HA机制—">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HA高可用集群搭建">
+<meta property="og:url" content="http:&#x2F;&#x2F;gallonhu.github.io&#x2F;posts&#x2F;735ce64f&#x2F;index.html">
+<meta property="og:site_name" content="Gallon">
+<meta property="og:description" content="之前已经搭建好了一个集群，传送 这次在原来的基础上做一个双master的高可用集群。 Hadoop HA简介及工作原理Hadoop NameNode官方开始支持HA集群默认是从2.0开始，之前的版本均是不支持NameNode HA的高可用的。 Hadoop HA简介Hadoop-HA集群运作机制介绍 HA即高可用（7*24小时不中断服务） 实现高可用最关键的是消除单点故障 分成各个组件的HA机制—">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;images.unsplash.com&#x2F;photo-1575072447487-0e58c715568a?ixlib&#x3D;rb-1.2.1&amp;ixid&#x3D;eyJhcHBfaWQiOjEyMDd9&amp;auto&#x3D;format&amp;fit&#x3D;crop&amp;w&#x3D;634&amp;q&#x3D;80">
+<meta property="article:published_time" content="2019-12-16T03:01:42.000Z">
+<meta property="article:modified_time" content="2020-01-18T14:00:13.315Z">
+<meta property="article:author" content="gallon">
+<meta property="article:tag" content="Install">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;images.unsplash.com&#x2F;photo-1575072447487-0e58c715568a?ixlib&#x3D;rb-1.2.1&amp;ixid&#x3D;eyJhcHBfaWQiOjEyMDd9&amp;auto&#x3D;format&amp;fit&#x3D;crop&amp;w&#x3D;634&amp;q&#x3D;80">
+
+
+
+
+
+<link rel="alternative" href="/atom.xml" title="HA高可用集群搭建" type="application/atom+xml">
+
+
+
+<link rel="icon" href="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+<style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+    
+    
+    
+    
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+    
+    
+    
+    
+    
+    
+    
+    <link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+    
+    <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png" alt="HA高可用集群搭建" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+				<div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+<div class="card">
+    
+    <div class="card-image">
+        <span  class="image is-7by1">
+            <img class="thumbnail" src="https://images.unsplash.com/photo-1575072447487-0e58c715568a?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=634&amp;q=80" alt="HA高可用集群搭建">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-16T03:01:42.000Z">2019-12-16</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/Bigdata/">Bigdata</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    21 分钟 读完 (大约 3109 个字)
+                </span>
+                
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                HA高可用集群搭建
+            
+        </h1>
+        <div class="content">
+            <p>之前已经搭建好了一个集群，<a href="https://gallonhu.github.io/posts/f9bc2212">传送</a> 这次在原来的基础上做一个双<em>master</em>的高可用集群。</p>
+<h2 id="Hadoop-HA简介及工作原理"><a href="#Hadoop-HA简介及工作原理" class="headerlink" title="Hadoop HA简介及工作原理"></a>Hadoop HA简介及工作原理</h2><p>Hadoop NameNode官方开始支持HA集群默认是从2.0开始，之前的版本均是不支持NameNode HA的高可用的。</p>
+<h3 id="Hadoop-HA简介"><a href="#Hadoop-HA简介" class="headerlink" title="Hadoop HA简介"></a>Hadoop HA简介</h3><h4 id="Hadoop-HA集群运作机制介绍"><a href="#Hadoop-HA集群运作机制介绍" class="headerlink" title="Hadoop-HA集群运作机制介绍"></a>Hadoop-HA集群运作机制介绍</h4><ul>
+<li>HA即高可用（7*24小时不中断服务）</li>
+<li>实现高可用最关键的是消除单点故障</li>
+<li>分成各个组件的HA机制——HDFS的HA、YARN的HA</li>
+</ul>
+<a id="more"></a>
+
+<h4 id="HDFS的HA机制详解"><a href="#HDFS的HA机制详解" class="headerlink" title="HDFS的HA机制详解"></a>HDFS的HA机制详解</h4><p>通过双namenode消除单点故障，以下为双namenode协调工作的特点：</p>
+<p>A、元数据管理方式需要改变：</p>
+<ul>
+<li>内存中各自保存一份元数据</li>
+<li>Edits日志只能有一份，只有Active状态的namenode节点可以做写操作</li>
+<li>两个namenode都可以读取edits</li>
+<li>共享的edits放在一个共享存储中管理（qjournal和NFS两个主流实现）</li>
+</ul>
+<p>B、需要一个状态管理功能模块</p>
+<ul>
+<li>实现了一个zkfailover，常驻在每一个namenode所在的节点</li>
+<li>每一个zkfailover负责监控自己所在namenode节点，利用zk进行状态标识</li>
+<li>当需要进行状态切换时，由zkfailover来负责切换</li>
+<li>切换时需要防止brain split现象的发生</li>
+</ul>
+<h3 id="Hadoop-HA工作原理图例"><a href="#Hadoop-HA工作原理图例" class="headerlink" title="Hadoop HA工作原理图例"></a>Hadoop HA工作原理图例</h3><h4 id="HDFS的HA架构"><a href="#HDFS的HA架构" class="headerlink" title="HDFS的HA架构"></a>HDFS的HA架构</h4><div align="center"><img src=" http://q1i38chc1.bkt.clouddn.com/bing/9d746e6e0c774166bf30f2de0e6c2c72.png" style="zoom:80%;"></div>
+使用 Active NameNode，Standby NameNode 两个结点解决单点问题，两个结点通过JounalNode 共享状态，采用ZKFC选举Active实时监控集群状态，自动进行故障备援。
+
+<!-- less -->
+
+<ul>
+<li>Active NameNode：接受 client 的 RPC 请求并处理，同时写自己的 Editlog 和共享存储上的 Editlog，接收 DataNode 的 Block report, block location updates 和 heartbeat；</li>
+<li>Standby NameNode：同样会接到来自 DataNode 的 Block report, block location updates 和heartbeat，同时会从共享存储的 Editlog 上读取并执行这些 log 操作，使得自己的 NameNode 中的元数据（Namespcae information + Block locations map）都是和 Active NameNode 中的元数据是同步的。所以说 Standby 模式的 NameNode 是一个热备（Hot Standby NameNode），一旦切换成 Active 模式，马上就可以提供 NameNode 服务</li>
+<li>JounalNode：用于Active NameNode ， Standby NameNode 同步数据，本身由一组 JounnalNode 结点组成，该组结点基数个，支持 Paxos 协议，保证高可用，是 CDH5 唯一支持的共享方式（相对于 CDH4 促在NFS共享方式）</li>
+<li>ZKFC：监控NameNode进程，自动备援。</li>
+</ul>
+<h4 id="YARN的HA架构"><a href="#YARN的HA架构" class="headerlink" title="YARN的HA架构"></a>YARN的HA架构</h4><div align="center"><img src=" http://q1i38chc1.bkt.clouddn.com/bing/e515121712f648b58cc804e2de8a302c.jpg" style="zoom:80%;"></div>
+ResourceManager HA由一对Active，Standby结点构成，通过RMStateStore 存储内部数据和主要应用的数据及标记。
+
+<p>支持可替代的RMStateStore实现方式如下：</p>
+<ul>
+<li>基于内存的MemoryRMStateStore</li>
+<li>基于文件系统的FileSystemRMStateStore</li>
+<li>基于 zookeeper的ZKRMStateStore<br>ResourceManager HA 的架构模式同NameNode HA的架构模式基本一致，数据共享由 RMStateStore，而ZKFC成为ResourceManager进程的一个服务，非独立存在。</li>
+</ul>
+<h3 id="Hadoop-HA解决方案架构"><a href="#Hadoop-HA解决方案架构" class="headerlink" title="Hadoop HA解决方案架构"></a>Hadoop HA解决方案架构</h3><p>Hadoop中的HDFS、MapReduce和YARN的单点故障解决方案架构是完全一致的。</p>
+<ul>
+<li>手动模式：指由管理员通过命令进行主备切换，这通常在服务升级时有用。</li>
+<li>自动模式：自动模式可降低运维成本并自动切换，但存在潜在危险，如脑裂。</li>
+</ul>
+<div align="center"><img src=" http://q1i38chc1.bkt.clouddn.com/bing/hadoop-ha.png" style="zoom:80%;"></div>
+本文将重点介绍下自动模式切换的部署方式。
+
+<blockquote>
+<p>什么是脑裂：脑裂是Hadoop2.X版本后出现的全新问题，从字面意思我们可以理解为“大脑分裂”；我们想一下，当一个正常人，突然出现有了两个大脑，而且这两个大脑都有自己的意识，对于这个人来说肯定是灾难性问题。同理，在Hadoop中，为了防止单点失效问题而出现了两个namenode（HA机制），这两个namenode正常情况下是起到一个失效，另一个代替的作用，但在实际运行过程中很有可能出现两个namenode同时服务于整个集群的情况，这种情况称之为脑裂。</p>
+<p>为什么会出现脑裂：脑裂通常发生在主从namenode切换时，由于ActiveNameNode的网络延迟、设备故障等问题，另一个NameNode会认为活跃的NameNode成为失效状态，此时StandbyNameNode会转换成活跃状态，此时集群中将会出现两个活跃的namenode。因此，可能出现的因素有网络延迟、心跳故障、设备故障等。</p>
+<p>怎么解决脑裂问题：1.新增一条心跳线，防止namennode状态无法正常传达。2.使用隔离机制，通过调用活跃节点中的隔离方法，让其主动转换为standby状态，如果该方法失效则使用远程调用执行kill -9命令杀死相应进程，如果该方法仍然无法成功隔离，管理人员可以事先在每台namenode节点中编写一个shell脚本，当出现脑裂问题时，执行该脚本来切断电源，已达到隔离目的。</p>
+</blockquote>
+<p>其他平台HA类似</p>
+<h2 id="HA环境准备"><a href="#HA环境准备" class="headerlink" title="HA环境准备"></a>HA环境准备</h2><h3 id="各主机IP规划"><a href="#各主机IP规划" class="headerlink" title="各主机IP规划"></a>各主机IP规划</h3><table>
+<thead>
+<tr>
+<th align="left">主机名</th>
+<th align="left">IP地址</th>
+<th align="left">操作系统</th>
+<th align="left">安装软件</th>
+<th align="left">运行进程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">sgmaster1</td>
+<td align="left">192.168.1.100</td>
+<td align="left">centos7.4</td>
+<td align="left">jdk、hadoop、zookeeper、hbase、spark</td>
+<td align="left">NameNode、DFSZKFailoverController(zkfc)、ResourceManager、HMaster、HRegionServer、Master</td>
+</tr>
+<tr>
+<td align="left">sgmaster2</td>
+<td align="left">192.168.1.101</td>
+<td align="left">centos7.4</td>
+<td align="left">jdk、hadoop、zookeeper、hbase、spark</td>
+<td align="left">NameNode、DFSZKFailoverController(zkfc)、ResourceManager、HMaster、HRegionServer、Master</td>
+</tr>
+<tr>
+<td align="left">sgslaver1</td>
+<td align="left">192.168.1.102</td>
+<td align="left">centos7.4</td>
+<td align="left">jdk、hadoop、zookeeper、hbase、spark</td>
+<td align="left">DataNode、NodeManager、JournalNode、QuorumPeerMain、Worker、HRegionServer</td>
+</tr>
+<tr>
+<td align="left">sgslaver2</td>
+<td align="left">192.168.1.103</td>
+<td align="left">centos7.4</td>
+<td align="left">jdk、hadoop、zookeeper、hbase、spark</td>
+<td align="left">DataNode、NodeManager、JournalNode、QuorumPeerMain、Worker、HRegionServer</td>
+</tr>
+<tr>
+<td align="left">sgslaver3</td>
+<td align="left">192.168.1.104</td>
+<td align="left">centos7.4</td>
+<td align="left">jdk、hadoop、zookeeper、hbase、spark</td>
+<td align="left">DataNode、NodeManager、JournalNode、QuorumPeerMain、Worker、HRegionServer</td>
+</tr>
+</tbody></table>
+<h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><ul>
+<li>添加 hosts</li>
+<li>ssh 互信</li>
+<li>软件包安装配置</li>
+</ul>
+<p>以上内容可参考另外一篇<a href="http://gallonhu.coding.me/2019/10/21/大数据平台安装/" target="_blank" rel="noopener">博文</a></p>
+<h2 id="HA配置"><a href="#HA配置" class="headerlink" title="HA配置"></a>HA配置</h2><h3 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h3><h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><p><strong>zoo.cfg</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">vim $ZOOKEEPER_HOME/conf/zoo.cfg</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> The number of ticks that can pass between</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> sending a request and getting an acknowledgement</span></span><br><span class="line">syncLimit=5</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> the directory <span class="hljs-built_in">where</span> the snapshot is stored.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-keyword">do</span> not use /tmp <span class="hljs-keyword">for</span> storage, /tmp here is just</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> example sakes.</span></span><br><span class="line">dataDir=/data/zookeeper</span><br><span class="line">dataLogDir=/data/zookeeper/logs</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> the port at <span class="hljs-built_in">which</span> the clients will connect</span></span><br><span class="line">clientPort=2181</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> the maximum number of client connections.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> increase this <span class="hljs-keyword">if</span> you need to handle more clients</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">maxClientCnxns=60</span></span><br><span class="line"><span class="hljs-meta">#</span></span><br><span class="line">admin.serverPort=8090</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Be sure to <span class="hljs-built_in">read</span> the maintenance section of the</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> administrator guide before turning on autopurge.</span></span><br><span class="line"><span class="hljs-meta">#</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> http://zookeeper.apache.org/doc/current/zookeeperAdmin.html<span class="hljs-comment">#sc_maintenance</span></span></span><br><span class="line"><span class="hljs-meta">#</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> The number of snapshots to retain <span class="hljs-keyword">in</span> dataDir</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">autopurge.snapRetainCount=3</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Purge task interval <span class="hljs-keyword">in</span> hours</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Set to <span class="hljs-string">"0"</span> to <span class="hljs-built_in">disable</span> auto purge feature</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">autopurge.purgeInterval=1</span></span><br><span class="line">server.1=sgmaster1:2888:3888</span><br><span class="line">server.2=sgmaster2:2888:3888</span><br><span class="line">server.3=sgslaver1:2888:3888</span><br><span class="line">server.4=sgslaver2:2888:3888</span><br><span class="line">server.5=sgslaver3:2888:3888</span><br></pre></td></tr></table></figure>
+
+<p><strong>创建myid</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 分别对应1-5，各自执行即可。</span></span><br><span class="line">echo "1" &gt; /data/zookeeper/myid</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动或关闭"><a href="#启动或关闭" class="headerlink" title="启动或关闭"></a>启动或关闭</h4><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zkServer.sh start</span><br><span class="line">zkServer.sh stop</span><br></pre></td></tr></table></figure>
+
+<h3 id="Hadoop"><a href="#Hadoop" class="headerlink" title="Hadoop"></a>Hadoop</h3><h4 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h4><p><strong>core-site.xml</strong></p>
+<figure class="highlight xml hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>fs.defaultFS<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>hdfs://ns<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>hadoop.tmp.dir<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>/data/hadoop<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">         <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>ha.zookeeper.quorum<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">   <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>sgmaster1:2181,sgmaster2:2181,sgslaver1:2181,sgslaver2:2181,sgslaver3:2181<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>ha.zookeeper.session-timeout.ms<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>15000<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line"> 		<span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>hdfs-site.xml</strong></p>
+<figure class="highlight xml hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>shell(/bin/true)<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-comment">&lt;!--SSH私钥 --&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.ha.fencing.ssh.private-key-files<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>/root/.ssh/id_rsa<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-comment">&lt;!--SSH超时时间 --&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.ha.fencing.ssh.connect-timeout<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>30000<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-comment">&lt;!--Journal Node文件存储地址 --&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>dfs.journalnode.edits.dir<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>/data/hadoop/journal<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>yarn-site.xml</strong></p>
+<figure class="highlight xml hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-comment">&lt;!-- 分别指定RM的地址 --&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.resourcemanager.hostname.rm1<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>sgmaster1<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.resourcemanager.hostname.rm2<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>sgmaster2<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-comment">&lt;!-- 指定zk集群地址 --&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.resourcemanager.zk-address<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>sgmaster1:2181,sgmaster2:2181,sgslaver1:2181,sgslaver2:2181,sgslaver3:2181<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>mapreduce_shuffle<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>mapred-site.xml</strong></p>
+<figure class="highlight xml hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>mapreduce.framework.name<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">        <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>yarn<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>workers</strong></p>
+<figure class="highlight xml hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sgslaver1</span><br><span class="line">sgslaver2</span><br><span class="line">sgslaver3</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动及维护"><a href="#启动及维护" class="headerlink" title="启动及维护"></a>启动及维护</h4><h5 id="初始化zookeeper并启动集群"><a href="#初始化zookeeper并启动集群" class="headerlink" title="初始化zookeeper并启动集群"></a>初始化zookeeper并启动集群</h5><ul>
+<li>启动zookeeper节点：从节点分别执行</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zkServer.sh start</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>格式化zookeeper节点：sgmaster1执行</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs zkfc -formatZK</span><br></pre></td></tr></table></figure>
+
+<h5 id="初始化hadoop并启动集群"><a href="#初始化hadoop并启动集群" class="headerlink" title="初始化hadoop并启动集群"></a>初始化hadoop并启动集群</h5><ul>
+<li>启动journalnode节点：从节点分别执行</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs --daemon start journalnode</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>格式化namenode：sgmaster1上执行</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -format</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>节点sgmaster1</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 验证，显示NameNode和DataNode</span></span><br><span class="line">start-dfs.sh</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 验证，显示ResourceManager和NodeManager</span></span><br><span class="line">start-yarn.sh</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>节点sgmaster2</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -bootstrapStandby</span><br><span class="line">hadoop-daemon.sh start namenode</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>  此时sre01和sre02均处于standby状态。</p>
+</blockquote>
+<ul>
+<li>启动zkfc服务：master上分别执行</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs --daemon start zkfc</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>健康状态检查：运行状态说明。</p>
+<ul>
+<li>启动zkfc服务后，sgmaster1和sgmaster2会自动选举出active节点。</li>
+<li>此时一个节点为active状态，另一个处于standby状态。</li>
+<li>在浏览器中打开 <a href="http://sgmaster1:50070" target="_blank" rel="noopener">NamaNode UI</a>、<a href="http://sgmaster1:8088" target="_blank" rel="noopener">Yarn UI</a>，可以产看主节点和备用主节点的状态</li>
+</ul>
+<div align="center"><img src=" https://cdn.jsdelivr.net/gh/GallonHu/pic@master/screenshot/Screen-Shot-2019-12-02-at-9.31.46-PM.png" style="zoom:80%;"></div>
+
+</li>
+</ul>
+<div align="center"><img src="  https://cdn.jsdelivr.net/gh/GallonHu/pic@master/screenshot/Screen-Shot-2019-12-02-at-9.41.52-PM.png" style="zoom:80%;"></div>
+
+<h4 id="HA故障自动切换测试"><a href="#HA故障自动切换测试" class="headerlink" title="HA故障自动切换测试"></a>HA故障自动切换测试</h4><h5 id="主节点—-gt-备用主节点"><a href="#主节点—-gt-备用主节点" class="headerlink" title="主节点—&gt;备用主节点"></a>主节点—&gt;备用主节点</h5><ul>
+<li><p>kill掉主节点的namenode，查看备用主节点的namenode状态是否切换为active；</p>
+</li>
+<li><p>kill掉主节点的ResourceManager，查看备用主节点的ResourceManager是否切换为active；</p>
+</li>
+</ul>
+<p>######备用主节点—&gt;主节点</p>
+<p>若上述操作执行成功，那么再测试反向故障自动转移</p>
+<ul>
+<li>先启动被杀死的原主节点的namenode和ResourceManager</li>
+</ul>
+<figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hadoop-daemon.sh start namenode </span><br><span class="line"></span><br><span class="line">yarn-daemon.sh start resourcemanager</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>再kill备用主节点的namenode和ResourceManager，查看主节点的状态，若能切换为active，那么Hadoop HA高可用集群搭建完成。</li>
+</ul>
+<h3 id="Hbase"><a href="#Hbase" class="headerlink" title="Hbase"></a>Hbase</h3><h4 id="配置-2"><a href="#配置-2" class="headerlink" title="配置"></a>配置</h4><p><strong>hbase-env.sh</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> A string representing this instance of hbase. <span class="hljs-variable">$USER</span> by default.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-built_in">export</span> HBASE_IDENT_STRING=<span class="hljs-variable">$USER</span></span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> The scheduling priority <span class="hljs-keyword">for</span> daemon processes.  See <span class="hljs-string">'man nice'</span>.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-built_in">export</span> HBASE_NICENESS=10</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> The directory <span class="hljs-built_in">where</span> pid files are stored. /tmp by default.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-built_in">export</span> HBASE_PID_DIR=/var/hadoop/pids</span></span><br><span class="line">export HBASE_PID_DIR=/data/hbase/pids</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Seconds to sleep between slave commands.  Unset by default.  This</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> can be useful <span class="hljs-keyword">in</span> large clusters, <span class="hljs-built_in">where</span>, e.g., slave rsyncs can</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> otherwise arrive faster than the master can service them.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-built_in">export</span> HBASE_SLAVE_SLEEP=0.1</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Tell HBase whether it should manage it<span class="hljs-string">'s own instance of ZooKeeper or not.</span></span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-built_in">export</span> HBASE_MANAGES_ZK=<span class="hljs-literal">true</span></span></span><br><span class="line">export HBASE_MANAGES_ZK=false</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> The default <span class="hljs-built_in">log</span> rolling policy is RFA, <span class="hljs-built_in">where</span> the <span class="hljs-built_in">log</span> file is rolled as per the size defined <span class="hljs-keyword">for</span> the</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> RFA appender. Please refer to the log4j.properties file to see more details on this appender.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> In <span class="hljs-keyword">case</span> one needs to <span class="hljs-keyword">do</span> <span class="hljs-built_in">log</span> rolling on a date change, one should <span class="hljs-built_in">set</span> the environment property</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> HBASE_ROOT_LOGGER to <span class="hljs-string">"&lt;DESIRED_LOG LEVEL&gt;,DRFA"</span>.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> For example:</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> HBASE_ROOT_LOGGER=INFO,DRFA</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> The reason <span class="hljs-keyword">for</span> changing default to RFA is to avoid the boundary <span class="hljs-keyword">case</span> of filling out disk space as</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> DRFA doesn<span class="hljs-string">'t put any cap on the log size. Please refer to HBase-5655 for more context.</span></span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Tell HBase whether it should include Hadoop<span class="hljs-string">'s lib when start up,</span></span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> the default value is <span class="hljs-literal">false</span>,means that includes Hadoop<span class="hljs-string">'s lib.</span></span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-built_in">export</span> HBASE_DISABLE_HADOOP_CLASSPATH_LOOKUP=<span class="hljs-string">"true"</span></span></span><br></pre></td></tr></table></figure>
+
+<p><strong>hbase-site.xml</strong></p>
+<figure class="highlight xml hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>hbase.master.info.port<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>16010<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>hbase.regionserver.info.port<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>16030<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">property</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>hbase.unsafe.stream.capability.enforce<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>false<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span></span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>完全分布式式必须为false<span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>regionservers</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sgmaster1</span><br><span class="line">sgmaster2</span><br><span class="line">sgslaver1</span><br><span class="line">sgslaver2</span><br><span class="line">sgslaver3</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建pid文件保存目录"><a href="#创建pid文件保存目录" class="headerlink" title="创建pid文件保存目录"></a>创建pid文件保存目录</h4><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /data/hbase/pids</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h4><ul>
+<li>在主节点上启动HBase</li>
+</ul>
+<p><strong>这里的主节点是指NameNode状态为active的节点</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 查看HMaster、Regionserver进程是否启动</span></span><br><span class="line">start-hbase.sh</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在备用主节点启动HMaster进程</li>
+</ul>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase-daemon.sh start master</span><br></pre></td></tr></table></figure>
+
+<h4 id="HA高可用测试"><a href="#HA高可用测试" class="headerlink" title="HA高可用测试"></a>HA高可用测试</h4><p>在浏览器中打开 <a href="http://sgmaster1:16010" target="_blank" rel="noopener">Web UI</a>，可以查看主节点和备用主节点的状态</p>
+<div align="center"><img src=" https://cdn.jsdelivr.net/gh/GallonHu/pic@master/screenshot/Screen-Shot-2019-12-02-at-9.56.01-PM.png" style="zoom:80%;"></div>
+
+<h5 id="主节点—-gt-备用主节点-1"><a href="#主节点—-gt-备用主节点-1" class="headerlink" title="主节点—&gt;备用主节点"></a>主节点—&gt;备用主节点</h5><blockquote>
+<p>  这里的主节点指使用start-hbase.sh命令启动HBase集群的机器</p>
+</blockquote>
+<p>kill掉主节点的HMaster进程，在浏览器中查看备用主节点的HBase是否切换为active；</p>
+<p>若上述操作成功，则在主节点启动被杀死的HMaster进程：</p>
+<figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase-daemon.sh start master</span><br></pre></td></tr></table></figure>
+
+<p>然后，kill掉备用主节点的HMaster进程，在浏览器中查看主节点的HBase是否切换为active，若操作成功，则HBase高可用集群搭建完成；</p>
+<h3 id="Spark"><a href="#Spark" class="headerlink" title="Spark"></a>Spark</h3><h4 id="配置-3"><a href="#配置-3" class="headerlink" title="配置"></a>配置</h4><p><strong>spark-env.sh</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_SHUFFLE_OPTS, to <span class="hljs-built_in">set</span> config properties only <span class="hljs-keyword">for</span> the external shuffle service (e.g. <span class="hljs-string">"-Dx=y"</span>)</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_DAEMON_JAVA_OPTS, to <span class="hljs-built_in">set</span> config properties <span class="hljs-keyword">for</span> all daemons (e.g. <span class="hljs-string">"-Dx=y"</span>)</span></span><br><span class="line">export SPARK_DAEMON_JAVA_OPTS="-Dspark.deploy.recoveryMode=ZOOKEEPER -Dspark.deploy.zookeeper.url=sgmaster1:2181,sgmaster2:2181,sgslaver1:2181,sgslaver2:2181,sgslaver3:2181 -Dspark.deploy.zookeeper.dir=/spark"</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_DAEMON_CLASSPATH, to <span class="hljs-built_in">set</span> the classpath <span class="hljs-keyword">for</span> all daemons</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_PUBLIC_DNS, to <span class="hljs-built_in">set</span> the public dns name of the master or workers</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Generic options <span class="hljs-keyword">for</span> the daemons used <span class="hljs-keyword">in</span> the standalone deploy mode</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_CONF_DIR      Alternate conf dir. (Default: <span class="hljs-variable">$&#123;SPARK_HOME&#125;</span>/conf)</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_LOG_DIR       Where <span class="hljs-built_in">log</span> files are stored.  (Default: <span class="hljs-variable">$&#123;SPARK_HOME&#125;</span>/logs)</span></span><br><span class="line">SPARK_LOG_DIR=/data/spark/logs</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_PID_DIR       Where the pid file is stored. (Default: /tmp)</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_IDENT_STRING  A string representing this instance of spark. (Default: <span class="hljs-variable">$USER</span>)</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_NICENESS      The scheduling priority <span class="hljs-keyword">for</span> daemons. (Default: 0)</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - SPARK_NO_DAEMONIZE  Run the proposed <span class="hljs-built_in">command</span> <span class="hljs-keyword">in</span> the foreground. It will not output a PID file.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Options <span class="hljs-keyword">for</span> native BLAS, like Intel MKL, OpenBLAS, and so on.</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> You might get better performance to <span class="hljs-built_in">enable</span> these options <span class="hljs-keyword">if</span> using native BLAS (see SPARK-21305).</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - MKL_NUM_THREADS=1        Disable multi-threading of Intel MKL</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> - OPENBLAS_NUM_THREADS=1   Disable multi-threading of OpenBLAS</span></span><br><span class="line"></span><br><span class="line">export JAVA_HOME=/opt/java/jdk1.8.0_221</span><br><span class="line">export SCALA_HOME=/opt/scala/scala-2.12.10</span><br><span class="line">export HADOOP_HOME=/opt/hadoop/hadoop-3.1.2</span><br><span class="line">export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop</span><br><span class="line">export PYSPARK_PYTHON=/usr/local/bin/python3</span><br><span class="line">export PYSPARK_DRIVER_PYTHON=/usr/local/bin/ipython</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动-1"><a href="#启动-1" class="headerlink" title="启动"></a>启动</h4><h5 id="在主节点启动master进程"><a href="#在主节点启动master进程" class="headerlink" title="在主节点启动master进程"></a>在主节点启动master进程</h5><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start-master.sh</span><br></pre></td></tr></table></figure>
+
+<h5 id="在备用主节点启动master进程"><a href="#在备用主节点启动master进程" class="headerlink" title="在备用主节点启动master进程"></a>在备用主节点启动master进程</h5><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start-master.sh</span><br></pre></td></tr></table></figure>
+
+<h5 id="web"><a href="#web" class="headerlink" title="web"></a>web</h5><p>浏览器访问 <a href="http://sgmaster1:8001" target="_blank" rel="noopener">Web UI</a></p>
+<div align="center"><img src=" https://cdn.jsdelivr.net/gh/GallonHu/pic@master/screenshot/Screen-Shot-2019-12-02-at-10.13.18-PM.png" style="zoom:80%;"></div>
+
+<h5 id="启动全部worker节点"><a href="#启动全部worker节点" class="headerlink" title="启动全部worker节点"></a>启动全部worker节点</h5><p>在ALIVE MASTER节点</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start-slaves.sh</span><br></pre></td></tr></table></figure>
+
+<p><a style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px" href="https://unsplash.com/@austinfruits?utm_medium=referral&amp;utm_campaign=photographer-credit&amp;utm_content=creditBadge" target="_blank" rel="noopener noreferrer" title="Download free do whatever you want high-resolution photos from Austin Fruits"><span style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg" style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white" viewbox="0 0 32 32"><title>unsplash-logo</title><path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"/></svg></span><span style="display:inline-block;padding:2px 3px">Austin Fruits</span></a></p>
+
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/Install/" rel="tag">Install</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="social-share"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css">
+<script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/alipay.jpg" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/wechatpay.jpg" alt="微信"></div>
+</a>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/posts/87856f92/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">Centos-NTP</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/posts/f9bc2212/">
+                <span class="level-item">大数据平台安装</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="title is-5 has-text-weight-normal">评论</h3>
+        
+<div id="valine-thread" class="content"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#valine-thread' ,
+        notify: false,
+        verify: false,
+        app_id: '67YP66D1kdqJwPueQ0pGewWc-gzGzoHsz',
+        app_key: 'dBYsXpznvy89hCafAtx0fE4g',
+        placeholder: 'Just go go'
+    });
+</script>
+
+    </div>
+</div>
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                    <figure class="image is-128x128 has-mb-6">
+                        <img class="" src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/v2-0e5421e09670c8ca98fe6cbba05d2de4_hd.jpg" alt="gallon">
+                    </figure>
+                    
+                    <p class="is-size-4 is-block">
+                        gallon
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        奔跑的小白
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>Hunan University</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <a href="/archives">
+                        <p class="title has-text-weight-normal">
+                            14
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <a href="/categories">
+                        <p class="title has-text-weight-normal">
+                            3
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <a href="/tags">
+                        <p class="title has-text-weight-normal">
+                            15
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/GallonHu" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/GallonHu">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/atom.xml">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Mail" href="mailto:18273170036@163.com">
+                
+                <i class="fas fa-envelope"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+
+    <div class="card widget" id="toc">
+        <div class="card-content">
+            <div class="menu">
+                <h3 class="menu-label">
+                    目录
+                </h3>
+                <ul class="menu-list"><li>
+        <a class="is-flex" href="#Hadoop-HA简介及工作原理">
+        <span class="has-mr-6">1</span>
+        <span>Hadoop HA简介及工作原理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Hadoop-HA简介">
+        <span class="has-mr-6">1.1</span>
+        <span>Hadoop HA简介</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Hadoop-HA集群运作机制介绍">
+        <span class="has-mr-6">1.1.1</span>
+        <span>Hadoop-HA集群运作机制介绍</span>
+        </a></li><li>
+        <a class="is-flex" href="#HDFS的HA机制详解">
+        <span class="has-mr-6">1.1.2</span>
+        <span>HDFS的HA机制详解</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Hadoop-HA工作原理图例">
+        <span class="has-mr-6">1.2</span>
+        <span>Hadoop HA工作原理图例</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#HDFS的HA架构">
+        <span class="has-mr-6">1.2.1</span>
+        <span>HDFS的HA架构</span>
+        </a></li><li>
+        <a class="is-flex" href="#YARN的HA架构">
+        <span class="has-mr-6">1.2.2</span>
+        <span>YARN的HA架构</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Hadoop-HA解决方案架构">
+        <span class="has-mr-6">1.3</span>
+        <span>Hadoop HA解决方案架构</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#HA环境准备">
+        <span class="has-mr-6">2</span>
+        <span>HA环境准备</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#各主机IP规划">
+        <span class="has-mr-6">2.1</span>
+        <span>各主机IP规划</span>
+        </a></li><li>
+        <a class="is-flex" href="#准备">
+        <span class="has-mr-6">2.2</span>
+        <span>准备</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#HA配置">
+        <span class="has-mr-6">3</span>
+        <span>HA配置</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Zookeeper">
+        <span class="has-mr-6">3.1</span>
+        <span>Zookeeper</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#配置">
+        <span class="has-mr-6">3.1.1</span>
+        <span>配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#启动或关闭">
+        <span class="has-mr-6">3.1.2</span>
+        <span>启动或关闭</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Hadoop">
+        <span class="has-mr-6">3.2</span>
+        <span>Hadoop</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#配置-1">
+        <span class="has-mr-6">3.2.1</span>
+        <span>配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#启动及维护">
+        <span class="has-mr-6">3.2.2</span>
+        <span>启动及维护</span>
+        </a></li><li>
+        <a class="is-flex" href="#HA故障自动切换测试">
+        <span class="has-mr-6">3.2.3</span>
+        <span>HA故障自动切换测试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Hbase">
+        <span class="has-mr-6">3.3</span>
+        <span>Hbase</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#配置-2">
+        <span class="has-mr-6">3.3.1</span>
+        <span>配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#创建pid文件保存目录">
+        <span class="has-mr-6">3.3.2</span>
+        <span>创建pid文件保存目录</span>
+        </a></li><li>
+        <a class="is-flex" href="#启动">
+        <span class="has-mr-6">3.3.3</span>
+        <span>启动</span>
+        </a></li><li>
+        <a class="is-flex" href="#HA高可用测试">
+        <span class="has-mr-6">3.3.4</span>
+        <span>HA高可用测试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Spark">
+        <span class="has-mr-6">3.4</span>
+        <span>Spark</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#配置-3">
+        <span class="has-mr-6">3.4.1</span>
+        <span>配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#启动-1">
+        <span class="has-mr-6">3.4.2</span>
+        <span>启动</span>
+        </a></li></ul></li></ul></li></ul>
+            </div>
+        </div>
+    </div>
+
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+            
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/Bigdata/">
+            <span class="level-start">
+                <span class="level-item">Bigdata</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Linux/">
+            <span class="level-start">
+                <span class="level-item">Linux</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Tutorials/">
+            <span class="level-start">
+                <span class="level-item">Tutorials</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/posts/918ab41d/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1508971607899-a238a095d417?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=2768&amp;q=80" alt="archlinuxa安装配置">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-11T02:07:07.000Z">2020-02-11</time></div>
+                    <a href="/posts/918ab41d/" class="title has-link-black-ter is-size-6 has-text-weight-normal">archlinuxa安装配置</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Linux/">Linux</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/fbcc746f/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="软件工具篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T02:00:14.000Z">2019-12-26</time></div>
+                    <a href="/posts/fbcc746f/" class="title has-link-black-ter is-size-6 has-text-weight-normal">软件工具篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/7309d80/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="终端利器之tmux篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T01:59:04.000Z">2019-12-26</time></div>
+                    <a href="/posts/7309d80/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之tmux篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/848c0324/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1537311597144-e497bdef2ca8?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1267&amp;q=80" alt="终端利器之vim篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-17T11:14:34.000Z">2019-12-17</time></div>
+                    <a href="/posts/848c0324/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之vim篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/eec0bc4e/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1571028634586-ae87c1a42432?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=633&amp;q=80" alt="终端利器之zsh篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-16T06:50:38.000Z">2019-12-16</time></div>
+                    <a href="/posts/eec0bc4e/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之zsh篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">13</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Archlinux/">
+                        <span class="tag">Archlinux</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Blog/">
+                        <span class="tag">Blog</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Hexo/">
+                        <span class="tag">Hexo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Install/">
+                        <span class="tag">Install</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jupyter/">
+                        <span class="tag">Jupyter</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Markdown/">
+                        <span class="tag">Markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/NTP/">
+                        <span class="tag">NTP</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Python/">
+                        <span class="tag">Python</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/RabbitMQ/">
+                        <span class="tag">RabbitMQ</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Shell/">
+                        <span class="tag">Shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Spark/">
+                        <span class="tag">Spark</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Terminal/">
+                        <span class="tag">Terminal</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Vim/">
+                        <span class="tag">Vim</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Virtualenv/">
+                        <span class="tag">Virtualenv</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Zsh/">
+                        <span class="tag">Zsh</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only has-order-3 column-right ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/Bigdata/">
+            <span class="level-start">
+                <span class="level-item">Bigdata</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Linux/">
+            <span class="level-start">
+                <span class="level-item">Linux</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Tutorials/">
+            <span class="level-start">
+                <span class="level-item">Tutorials</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/posts/918ab41d/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1508971607899-a238a095d417?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=2768&amp;q=80" alt="archlinuxa安装配置">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-11T02:07:07.000Z">2020-02-11</time></div>
+                    <a href="/posts/918ab41d/" class="title has-link-black-ter is-size-6 has-text-weight-normal">archlinuxa安装配置</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Linux/">Linux</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/fbcc746f/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="软件工具篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T02:00:14.000Z">2019-12-26</time></div>
+                    <a href="/posts/fbcc746f/" class="title has-link-black-ter is-size-6 has-text-weight-normal">软件工具篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/7309d80/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="终端利器之tmux篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T01:59:04.000Z">2019-12-26</time></div>
+                    <a href="/posts/7309d80/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之tmux篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/848c0324/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1537311597144-e497bdef2ca8?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1267&amp;q=80" alt="终端利器之vim篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-17T11:14:34.000Z">2019-12-17</time></div>
+                    <a href="/posts/848c0324/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之vim篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/eec0bc4e/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1571028634586-ae87c1a42432?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=633&amp;q=80" alt="终端利器之zsh篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-16T06:50:38.000Z">2019-12-16</time></div>
+                    <a href="/posts/eec0bc4e/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之zsh篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">13</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Archlinux/">
+                        <span class="tag">Archlinux</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Blog/">
+                        <span class="tag">Blog</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Hexo/">
+                        <span class="tag">Hexo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Install/">
+                        <span class="tag">Install</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jupyter/">
+                        <span class="tag">Jupyter</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Markdown/">
+                        <span class="tag">Markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/NTP/">
+                        <span class="tag">NTP</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Python/">
+                        <span class="tag">Python</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/RabbitMQ/">
+                        <span class="tag">RabbitMQ</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Shell/">
+                        <span class="tag">Shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Spark/">
+                        <span class="tag">Spark</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Terminal/">
+                        <span class="tag">Terminal</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Vim/">
+                        <span class="tag">Vim</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Virtualenv/">
+                        <span class="tag">Virtualenv</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Zsh/">
+                        <span class="tag">Zsh</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png" alt="HA高可用集群搭建" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 gallon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                <br>
+                <span id="busuanzi_container_site_uv">
+                共<span id="busuanzi_value_site_uv">0</span>个访客
+                </span>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+<script>
+var IcarusThemeSettings = {
+    article: {
+        highlight: {
+            clipboard: true,
+            fold: 'unfolded'
+        }
+    }
+};
+</script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+
+
+
+    
+    
+<script src="/js/animation.js"></script>
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+<script src="/js/gallery.js" defer></script>
+
+    
+    
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" target="_blank" rel="noopener">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+    
+    
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

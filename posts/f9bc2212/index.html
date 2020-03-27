@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8" />
+
+<meta name="generator" content="Hexo 4.1.0" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<title>大数据平台安装 - Gallon</title>
+
+
+    <meta name="description" content="本文主要记录了 hadoop 大数据集群的相关组件安装及记录过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据平台安装">
+<meta property="og:url" content="http:&#x2F;&#x2F;gallonhu.github.io&#x2F;posts&#x2F;f9bc2212&#x2F;index.html">
+<meta property="og:site_name" content="Gallon">
+<meta property="og:description" content="本文主要记录了 hadoop 大数据集群的相关组件安装及记录过程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;images.unsplash.com&#x2F;photo-1471623320832-752e8bbf8413?ixlib&#x3D;rb-1.2.1&amp;ixid&#x3D;eyJhcHBfaWQiOjEyMDd9&amp;auto&#x3D;format&amp;fit&#x3D;crop&amp;w&#x3D;649&amp;q&#x3D;80">
+<meta property="article:published_time" content="2019-12-16T03:00:04.000Z">
+<meta property="article:modified_time" content="2019-12-16T03:23:30.926Z">
+<meta property="article:author" content="gallon">
+<meta property="article:tag" content="Install">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;images.unsplash.com&#x2F;photo-1471623320832-752e8bbf8413?ixlib&#x3D;rb-1.2.1&amp;ixid&#x3D;eyJhcHBfaWQiOjEyMDd9&amp;auto&#x3D;format&amp;fit&#x3D;crop&amp;w&#x3D;649&amp;q&#x3D;80">
+
+
+
+
+
+<link rel="alternative" href="/atom.xml" title="大数据平台安装" type="application/atom+xml">
+
+
+
+<link rel="icon" href="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+<style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+    
+    
+    
+    
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+    
+    
+    
+    
+    
+    
+    
+    <link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+    
+    <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png" alt="大数据平台安装" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+				<div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+<div class="card">
+    
+    <div class="card-image">
+        <span  class="image is-7by1">
+            <img class="thumbnail" src="https://images.unsplash.com/photo-1471623320832-752e8bbf8413?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=649&amp;q=80" alt="大数据平台安装">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-16T03:00:04.000Z">2019-12-16</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/Bigdata/">Bigdata</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    28 分钟 读完 (大约 4206 个字)
+                </span>
+                
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                大数据平台安装
+            
+        </h1>
+        <div class="content">
+            <p>本文主要记录了 hadoop 大数据集群的相关组件安装及记录过程</p>
+<a id="more"></a>
+
+<h2 id="基本设置"><a href="#基本设置" class="headerlink" title="基本设置"></a>基本设置</h2><table>
+<thead>
+<tr>
+<th>节点</th>
+<th>IP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>192.168.0.100</td>
+</tr>
+<tr>
+<td>slave1</td>
+<td>192.168.0.101</td>
+</tr>
+<tr>
+<td>slave2</td>
+<td>192.168.0.102</td>
+</tr>
+<tr>
+<td>slave3</td>
+<td>192.168.0.103</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>版本</th>
+<th>安装位置</th>
+<th>logs 位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>java</td>
+<td>1.8</td>
+<td>/opt/java/jdk1.8.0_221</td>
+<td></td>
+</tr>
+<tr>
+<td>hadoop</td>
+<td>3.1.2</td>
+<td>/opt/hadoop/hadoop-3.1.2</td>
+<td>/data/hadoop/logs</td>
+</tr>
+<tr>
+<td>hive</td>
+<td>3.1.2</td>
+<td>/opt/hive/apache-hive-3.1.2-bin</td>
+<td>/data/hive/logs</td>
+</tr>
+<tr>
+<td>zookeeper</td>
+<td>3.5.6</td>
+<td>/opt/zookeeper/apache-zookeeper-3.5.6-bin</td>
+<td>/data/zookeeper/logs</td>
+</tr>
+<tr>
+<td>kafka</td>
+<td>2.12</td>
+<td>/opt/kafka/kafka_2.12-2.3.0</td>
+<td>/data/kafka/logs</td>
+</tr>
+<tr>
+<td>flume</td>
+<td>1.9.0</td>
+<td>/opt/flume/apache-flume-1.9.0-bin</td>
+<td>/data/flum/logs</td>
+</tr>
+<tr>
+<td>hbase</td>
+<td>2.2.1</td>
+<td>/opt/hbase/hbase-2.2.1</td>
+<td>/data/hbase/logs</td>
+</tr>
+<tr>
+<td>spark</td>
+<td>2.4.4</td>
+<td>/opt/spark/spark-2.4.4-bin-hadoop2.7</td>
+<td>/data/spark/logs</td>
+</tr>
+</tbody></table>
+<!-- less -->
+
+<h2 id="ssh-互信"><a href="#ssh-互信" class="headerlink" title="ssh 互信"></a>ssh 互信</h2><h3 id="节点配置"><a href="#节点配置" class="headerlink" title="节点配置"></a>节点配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 主节点的配置, 其他节点上配置类似</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 修改主机名, 退出重新登录即可</span></span><br><span class="line">hostnamectl set-hostname master; </span><br><span class="line">exit;</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 添加各节点映射</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line">192.168.0.100 master</span><br><span class="line">192.168.0.101 slave1</span><br><span class="line">192.168.0.102 slave2</span><br><span class="line">192.168.0.103 slave3</span><br></pre></td></tr></table></figure>
+
+<h3 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h3><p><strong>在主节点安装两个脚本到 /usr/local/bin 目录下</strong></p>
+<p>脚本一: 集群间同步拷贝文件</p>
+<p>cluster_copy_all_nodes</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">!/bin/bash</span></span><br><span class="line">SELF=`hostname`</span><br><span class="line">if [ -z "$NODE_LIST" ]; then</span><br><span class="line">  echo</span><br><span class="line">  echo Error: NODE_LIST environment variable must be set in .bash_profile</span><br><span class="line">  exit 1</span><br><span class="line">fi</span><br><span class="line">for i in $NODE_LIST; do</span><br><span class="line">  if [ ! $i = $SELF ]; then</span><br><span class="line">    if [ $1 = "-r" ]; then</span><br><span class="line">      scp -oStrictHostKeyChecking=no -r $2 $i:$3</span><br><span class="line">    else</span><br><span class="line">      scp -oStrictHostKeyChecking=no $1 $i:$2</span><br><span class="line">    fi</span><br><span class="line">  fi</span><br><span class="line">done</span><br><span class="line">wait</span><br></pre></td></tr></table></figure>
+
+<p>脚本二: 用来集群间同步运行命令</p>
+<p>cluster_run_all_nodes</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">!/bin/bash</span></span><br><span class="line">if [ -z "$NODE_LIST" ]; then</span><br><span class="line">  echo</span><br><span class="line">  echo Error: NODE_LIST environment variable must be set in .bash_profile</span><br><span class="line">  exit 1</span><br><span class="line">fi</span><br><span class="line">if [[ $1 = '--background' ]]; then</span><br><span class="line">  shift</span><br><span class="line">  for i in $NODE_LIST; do</span><br><span class="line">    ssh -oStrictHostKeyChecking=no -n $i "$@" &amp;</span><br><span class="line">  done</span><br><span class="line">else</span><br><span class="line">  for i in $NODE_LIST; do</span><br><span class="line">    ssh -oStrictHostKeyChecking=no $i "$@"</span><br><span class="line">  done</span><br><span class="line">fi</span><br><span class="line">wait</span><br></pre></td></tr></table></figure>
+
+<p>授予两个脚本的可执行权限</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod +x /usr/local/bin/cluster_*</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h3><p>配置主节点环境变量</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi ~/.bash_profile</span><br><span class="line">export NODE_LIST='master slave1 slave2 slave3'</span><br><span class="line"></span><br><span class="line">source ~/.bash_profile</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置集群ssh互信"><a href="#配置集群ssh互信" class="headerlink" title="配置集群ssh互信"></a>配置集群ssh互信</h3><p><strong>1. 各节点生成密钥和公钥</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_run_all_nodes "hostname; ssh-keygen -q -t rsa  -N \"\" -f  ~/.ssh/id_rsa"</span><br></pre></td></tr></table></figure>
+
+<p>如果配置有误，或者清除ssh互信的当前所有配置信息</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cluster_run_all_nodes "hostname ; rm -rf ~/.ssh"</span><br><span class="line">rm -rf ~/.ssh</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 将所有的公钥文件汇总到一个总的授权key文件中</strong></p>
+<p>在主节点上汇总, 直接 shell 执行</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">IP_NET="192.168.0." </span><br><span class="line">for((i=100;i&lt;=103;i++))</span><br><span class="line">do</span><br><span class="line">ssh $IP_NET$i cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br><span class="line">echo Summarize ssh info from $IP_NET$i into a single file.</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<p>出于安全性考虑，将这个授权key文件赋予600权限</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 600 ~/.ssh/authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 将这个包含了所有互信机器认证key的认证文件，分发到各个机器中去</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_copy_all_nodes ~/.ssh/authorized_keys ~/.ssh/</span><br></pre></td></tr></table></figure>
+
+<p><strong>4.  验证ssh互信</strong></p>
+<p>master 上运行，都不输入密码返回主机名和时间即可</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_run_all_nodes "hostname;date"</span><br></pre></td></tr></table></figure>
+
+<h3 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h3><p>至此，ssh集群间的互信已经配置完成。<br>但为了更加灵活的再其他节点也可以用到我们自定义的脚本，我们还可以做以下工作</p>
+<p>同步拷贝 master 的配置文件到其他节点</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cluster_copy_all_nodes ~/.bash_profile ~/</span><br><span class="line">cluster_copy_all_nodes /etc/hosts /etc</span><br><span class="line">cluster_copy_all_nodes /usr/local/bin/cluster_copy_all_nodes /usr/local/bin/</span><br><span class="line">cluster_copy_all_nodes /usr/local/bin/cluster_run_all_nodes /usr/local/bin/</span><br></pre></td></tr></table></figure>
+
+<p>这时任意登录其他节点，也可以使用cluster_run_all_nodes验证ssh互信了</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_run_all_nodes "hostname;date"</span><br></pre></td></tr></table></figure>
+
+<h2 id="Hadoop"><a href="#Hadoop" class="headerlink" title="Hadoop"></a>Hadoop</h2><h3 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 关闭 SELINUX</span></span><br><span class="line">vi /etc/selinux/config</span><br><span class="line">SELINUX=disabled</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 关闭防火墙</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+
+<h3 id="Java-安装配置"><a href="#Java-安装配置" class="headerlink" title="Java 安装配置"></a>Java 安装配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 之后我们所有的环境配置包都放到/opt/下</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 新建java目录，把下载好的jdk的二进制包拷到下面</span></span><br><span class="line">mkdir -p /opt/java</span><br><span class="line">tar -zxvf jdk-8u221-linux-x64.tar.gz -C /opt/java/</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 配置环境变量，在profile文件最后添加java的环境变量</span></span><br><span class="line">vim /etc/profile</span><br><span class="line">export JAVA_HOME=/opt/java/jdk1.8.0_221</span><br><span class="line">export PATH=$PATH:$JAVA_HOME/bin</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br><span class="line">java -version</span><br><span class="line"></span><br><span class="line">java version "1.8.0_221"</span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_221-b11)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.221-b11, mixed mode)</span><br></pre></td></tr></table></figure>
+
+<h3 id="主节点"><a href="#主节点" class="headerlink" title="主节点"></a>主节点</h3><p><strong>1. 下载解压</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在/opt 下创建hadoop文件夹，将下载好的 hadoop 压缩包上传进去解压</span></span><br><span class="line">mkdir -p /opt/hadoop</span><br><span class="line">tar -zxvf hadoop-3.2.1.tar.gz -C /opt/hadoop</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 配置环境变量</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line"></span><br><span class="line">export HADOOP_HOME=/opt/hadoop/hadoop-3.2.1</span><br><span class="line">export HADOOP_INSTALL=$HADOOP_HOME</span><br><span class="line">export HADOOP_MAPRED_HOME=$HADOOP_HOME</span><br><span class="line">export HADOOP_HDFS_HOME=$HADOOP_HOME</span><br><span class="line">export HADOOP_COMMON_HOME=$HADOOP_HOME</span><br><span class="line">export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop</span><br><span class="line"></span><br><span class="line">export YARN_HOME=$HADOOP_HOME</span><br><span class="line">export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop</span><br><span class="line"></span><br><span class="line">export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 配置 NAMENODE</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 配置文件主要在 HADOOP_CONF_DIR 下面</span></span><br><span class="line"></span><br><span class="line">vi $HADOOP_CONF_DIR/core-site.xml</span><br><span class="line"></span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;fs.defaultFS&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;hdfs://master:9000&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;/data/hadoop&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> fs.defaultFS指定了hdfs的默认路径；hadoop.tmp.dir指定了hadoop文件存放路径的根目录, 需手动创建</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 配置HDFS</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">vi $HADOOP_CONF_DIR/hdfs-site.xml</span><br><span class="line"></span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">    		&lt;name&gt;dfs.replication&lt;/name&gt;</span><br><span class="line">    		&lt;value&gt;2&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.namenode.secondary.http-address&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;master:50090&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.namenode.secondary.https-address&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;master:50091&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br><span class="line"></span><br><span class="line">可以不用设置dfs.namenode.name.dir和dfs.datanode.data.dir，因为它们的值/data/hadoop会继承自core-site.xml中的hadoop.tmp.dir。</span><br><span class="line">dfs.replication设置副本数量，因为3节点中只有2个DataNode，因此此处为2，默认是3。</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 配置 MapReduce</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">vi $HADOOP_CONF_DIR/mapred-site.xml</span><br><span class="line"></span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;mapreduce.framework.name&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;yarn&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br><span class="line"></span><br><span class="line">YARN是一个通用的资源协调器，不仅可以为MapReduce服务，也可以为Spark、Tez等应用服务。</span><br></pre></td></tr></table></figure>
+
+<p><strong>6. 配置 YARN</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">vi $HADOOP_CONF_DIR/yarn-site.xml</span><br><span class="line"></span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;mapreduce_shuffle&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;yarn.resourcemanager.hostname&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;master&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>7. 配置 workers</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 我们使用 master 来作为 NameNode, slave1 slave2 slave3 作为 DataNode。workers默认只有一行内容: localhost，使用 vi 编辑 slaves，并写入下面内容：</span></span><br><span class="line">vi $HADOOP_CONF_DIR/workers</span><br><span class="line"></span><br><span class="line">slave1</span><br><span class="line">slave2</span><br><span class="line">slave3</span><br></pre></td></tr></table></figure>
+
+<p><strong>8. 配置 hadoop-env.sh</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi $HADOOP_CONF_DIR/hadoop-env.sh</span><br><span class="line"></span><br><span class="line">export HADOOP_LOG_DIR=/data/hadoop/logs</span><br><span class="line">export JAVA_HOME=/opt/java/jdk1.8.0_221</span><br></pre></td></tr></table></figure>
+
+<h3 id="子节点"><a href="#子节点" class="headerlink" title="子节点"></a>子节点</h3><p><strong>1. 创建 数据存储目录</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_run_all_nodes "hostname; mkdir -p /data/hadoop"</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 将 java 复制到子节点</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_copy_all_nodes /opt/hadoop /opt</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 将 hadoop 复制到子节点</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> hadoop 目录下 share/doc 为文档并且比较大, 先删除, 再复制到其他节点</span></span><br><span class="line">rm -rf /opt/hadoop/hadoop-3.2.1/share/doc/</span><br><span class="line"></span><br><span class="line">cluster_copy_all_nodes -r /opt/hadoop/ /opt</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 复制配置文件到子节点</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_copy_all_nodes /etc/profile /etc/</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 刷新环境</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster_run_all_nodes "hostname; source /etc/profile"</span><br></pre></td></tr></table></figure>
+
+<p><strong>6. 修改 shell 脚本</strong>（option）</p>
+<p>使用 root 用户安装的 hadoop, 需要修改 /sbin/ 中以下文件</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 对于 start-dfs.sh 和 stop-dfs.sh 文件，添加下列参数</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">!/usr/bin/env bash</span></span><br><span class="line">HDFS_DATANODE_USER=root</span><br><span class="line">HADOOP_SECURE_DN_USER=hdfsclu	</span><br><span class="line">HDFS_NAMENODE_USER=root</span><br><span class="line">HDFS_SECONDARYNAMENODE_USER=root</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 对于start-yarn.sh和stop-yarn.sh文件，添加下列参数</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">!/usr/bin/env bash</span></span><br><span class="line">YARN_RESOURCEMANAGER_USER=root</span><br><span class="line">HADOOP_SECURE_DN_USER=yarn</span><br><span class="line">YARN_NODEMANAGER_USER=root</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试是否配置成功"><a href="#测试是否配置成功" class="headerlink" title="测试是否配置成功"></a>测试是否配置成功</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 只要在主节点上启动，执行过程可能稍慢，耐心等待</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 格式化 namenode</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 这个命令非常危险！你应当只在新建集群后执行一次，因为 namenode 保存的是 HDFS 的所有元信息，如果丢失了，整个集群中 DataNode 的数据都无法访问，就算它们还在磁盘上</span></span><br><span class="line">hdfs namenode -format</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 启动 hadoop</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> hadoop 所有启动文件脚本都在 /sbin 下</span></span><br><span class="line">cd $HADOOP_HOME/sbin</span><br><span class="line">./start-all.sh</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 主节点输入 jps</span></span><br><span class="line">6517 Jps</span><br><span class="line">5832 NameNode</span><br><span class="line">5289 ResourceManager</span><br><span class="line">6106 SecondaryNameNode</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 从节点输入 jps</span></span><br><span class="line">2931 NodeManager</span><br><span class="line">3068 Jps</span><br><span class="line">2815 DataNode</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 至此, hadoop 搭建完成</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="web-ui"><a href="#web-ui" class="headerlink" title="web ui"></a>web ui</h3><p>namenode 在 hadoop3.0 以后默认端口为 9870 不是 50070</p>
+<p><a href="http://master:9870" target="_blank" rel="noopener">namenode</a></p>
+<p><a href="http://master:8088" target="_blank" rel="noopener">ResourceManager</a></p>
+<h2 id="Hive"><a href="#Hive" class="headerlink" title="Hive"></a>Hive</h2><h3 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 注意：Hive只需要在master节点上安装配置</span></span><br><span class="line"></span><br><span class="line">mkdir -p /opt/hive</span><br><span class="line">tar -zxvf apache-hive-3.1.2-bin.tar.gz -C /opt/hive</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 添加环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"></span><br><span class="line">export HIVE_HOME=/opt/hive/apache-hive-3.1.2-bin</span><br><span class="line">export PATH=$PATH:$HIVE_HOME/bin</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 刷新环境变量</span></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-hive-site-xml"><a href="#修改-hive-site-xml" class="headerlink" title="修改 hive-site.xml"></a>修改 hive-site.xml</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">vi $HIVE_HOME/conf/hive-site.xml</span><br><span class="line"></span><br><span class="line">&lt;property&gt;</span><br><span class="line">    &lt;name&gt;javax.jdo.option.ConnectionURL&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;jdbc:mysql://master:3306/hive?createDatabaseIfNotExist=true&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;</span><br><span class="line">      JDBC connect string for a JDBC metastore.</span><br><span class="line">      To use SSL to encrypt/authenticate the connection, provide database-specific SSL flag in the connection URL.</span><br><span class="line">      For example, jdbc:postgresql://myhost/db?ssl=true for postgres database.</span><br><span class="line">    &lt;/description&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line"> </span><br><span class="line"> &lt;property&gt;</span><br><span class="line">    &lt;name&gt;javax.jdo.option.ConnectionDriverName&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;com.mysql.jdbc.Driver&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;Driver class name for a JDBC metastore&lt;/description&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line">  </span><br><span class="line"> &lt;property&gt;</span><br><span class="line">    &lt;name&gt;javax.jdo.option.ConnectionUserName&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;root&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;Username to use against metastore database&lt;/description&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line">    </span><br><span class="line"> &lt;property&gt;</span><br><span class="line">    &lt;name&gt;javax.jdo.option.ConnectionPassword&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;123456&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;password to use against metastore database&lt;/description&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line"></span><br><span class="line"> &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hive.querylog.location&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;/opt/hive/apache-hive-3.1.2-bin/tmp/hadoop&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;Location of Hive run time structured log file&lt;/description&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line"> </span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hive.server2.logging.operation.log.location&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;/opt/hive/apache-hive-3.1.2-bin/tmp/hadoop/operation_logs&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;Top level directory where operation logs are stored if logging functionality is enabled&lt;/description&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">  </span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hive.exec.local.scratchdir&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;/opt/hive/apache-hive-3.1.2-bin/tmp/hadoop&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;Local scratch space for Hive jobs&lt;/description&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">  </span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hive.downloaded.resources.dir&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;/opt/hive/apache-hive-3.1.2-bin/tmp/$&#123;hive.session.id&#125;_resources&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;Temporary local directory for added resources in the remote file system.&lt;/description&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">  </span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hive.metastore.schema.verification&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;false&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;</span><br><span class="line">      Enforce metastore schema version consistency.</span><br><span class="line">      True: Verify that version information stored in is compatible with one from Hive jars.  Also disable automatic</span><br><span class="line">            schema migration attempt. Users are required to manually migrate schema after Hive upgrade which ensures</span><br><span class="line">            proper metastore schema migration. (Default)</span><br><span class="line">      False: Warn if the version information stored in metastore doesn't match with one from in Hive jars.</span><br><span class="line">    &lt;/description&gt;</span><br><span class="line">  &lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-hive-env-sh-文件"><a href="#修改-hive-env-sh-文件" class="headerlink" title="修改 hive-env.sh 文件"></a>修改 hive-env.sh 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cp $HIVE_HOME/conf/hive-env.sh.template $HIVE_HOME/conf/hive-env.sh</span><br><span class="line">vi $HIVE_HOME/conf/hive-env.sh</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Set HADOOP_HOME to point to a specific hadoop install directory</span></span><br><span class="line">HADOOP_HOME=/opt/hadoop/hadoop-3.2.1</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Hive Configuration Directory can be controlled by:</span></span><br><span class="line">export HIVE_CONF_DIR=/opt/hive/apache-hive-3.1.2-bin/conf</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> Folder containing extra libraries required <span class="hljs-keyword">for</span> hive compilation/execution can be controlled by:</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> <span class="hljs-built_in">export</span> HIVE_AUX_JARS_PATH=</span></span><br><span class="line">export JAVA_HOME=/opt/java/jdk1.8.0_221/</span><br><span class="line">export HIVE_HOME=/opt/hive/apache-hive-3.1.2-bin/</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置-logs"><a href="#设置-logs" class="headerlink" title="设置 logs"></a>设置 logs</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cp $HIVE_HOME/conf/hive-log4j2.properties.template $HIVE_HOME/conf/hive-log4j2.properties</span><br><span class="line">vi $HIVE_HOME/conf/hive-log4j2.properties</span><br><span class="line"></span><br><span class="line">property.hive.log.dir = /data/hive/logs</span><br><span class="line"></span><br><span class="line">mkdir -p /data/hive/logs</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装并配置-mysql"><a href="#安装并配置-mysql" class="headerlink" title="安装并配置 mysql"></a>安装并配置 mysql</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm</span><br><span class="line">rpm -ivh mysql-community-release-el7-5.noarch.rpm</span><br><span class="line"></span><br><span class="line">yum search mysql</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 里面有一条</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> mysql-community-server.x86_64 : The MySQL server and related files</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 安装它</span></span><br><span class="line">mysql-community-server.x86_64</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 刚才yum search的时候,有一条</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> mysql-connector-java.noarch : Official JDBC driver <span class="hljs-keyword">for</span> MySQL</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 安装它</span></span><br><span class="line">yum install mysql-connector-java.noarch</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 安装好后在 /usr/share/java 下</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 拷贝到 hive 的 lib 文件夹下</span></span><br><span class="line">cp /usr/share/java/mysql-connector-java.jar $HIVE_HOME/lib</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 重启 mysql 服务</span></span><br><span class="line">service mysqld restart</span><br><span class="line"></span><br><span class="line">mysql</span><br><span class="line">Welcome to the MySQL monitor.  Commands end with ; or \g.</span><br><span class="line">Your MySQL connection id is 2</span><br><span class="line">Server version: 5.6.46 MySQL Community Server (GPL)</span><br><span class="line"></span><br><span class="line">Copyright (c) 2000, 2019, Oracle and/or its affiliates. All rights reserved.</span><br><span class="line"></span><br><span class="line">Oracle is a registered trademark of Oracle Corporation and/or its</span><br><span class="line">affiliates. Other names may be trademarks of their respective</span><br><span class="line">owners.</span><br><span class="line"></span><br><span class="line">Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">mysql&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 安装成功</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>在mysql上创建hive元数据库，创建hive账号，并进行授权</strong></p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在mysql上连续执行下述命令</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> use mysql;</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> update user <span class="hljs-built_in">set</span> password=password(<span class="hljs-string">'123456'</span>) <span class="hljs-built_in">where</span> user=<span class="hljs-string">'root'</span>;</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> flush privileges;</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 重新连接 mysql -u root -p</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> create database <span class="hljs-keyword">if</span> not exists hive_metadata;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">schematool -dbType mysql -initSchema</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 输入 hive</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 进入 hive 交互界面</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 安装成功</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h2><h3 id="环境配置-1"><a href="#环境配置-1" class="headerlink" title="环境配置"></a>环境配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 新建文件夹</span></span><br><span class="line">mkdir -p /opt/zookeeper</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 解压</span></span><br><span class="line">tar -zxvf apache-zookeeper-3.5.6-bin.tar.gz -C /opt/zookeeper</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 配置环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line">export ZOOKEEPER_HOME=/opt/zookeeper/apache-zookeeper-3.5.6-bin</span><br><span class="line">export PATH=$PATH:$ZOOKEEPER_HOME/bin</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置-zoo-cfg-文件"><a href="#配置-zoo-cfg-文件" class="headerlink" title="配置 zoo.cfg 文件"></a>配置 zoo.cfg 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cp $ZOOKEEPER_HOME/conf/zoo.sample.cfg $ZOOKEEPER_HOME/conf/zoo.cfg</span><br><span class="line">vi $ZOOKEEPER_HOME/conf/zoo.cfg</span><br><span class="line"></span><br><span class="line">dataDir=/data/zookeeper</span><br><span class="line">server.0=master:2888:3888</span><br><span class="line">server.1=slave1:2888:3888 </span><br><span class="line">server.2=slave2:2888:3888</span><br><span class="line">server.3=slave3:2888:3888</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> server.  </span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 后面不能有空格！！！！！</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="配置-myid-文件"><a href="#配置-myid-文件" class="headerlink" title="配置 myid 文件"></a>配置 myid 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 创建 dataDir 目录</span></span><br><span class="line">mkdir -p /data/zookeeper</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 创建 myid 文件</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 修改其中的内容</span></span><br><span class="line">vi /data/zookeeper/myid</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置-logs-目录"><a href="#设置-logs-目录" class="headerlink" title="设置 logs 目录"></a>设置 logs 目录</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vi log4j.properties</span><br><span class="line"></span><br><span class="line">zookeeper.log.dir=/data/zookeeper/logs</span><br><span class="line"></span><br><span class="line">mkdir -p /data/zookeeper/logs</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置其他节点"><a href="#配置其他节点" class="headerlink" title="配置其他节点"></a>配置其他节点</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 把 mster 上配置好的 zookeeper 文件夹直接传到其他节点</span></span><br><span class="line">cluster_copy_all_nodes -r /opt/zookeeper/ /opt</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 把 /data/zookeeper 传到其他节点</span></span><br><span class="line">cluster_copy_all_nodes -r /data/zookeeper/ /data</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 修改子节点上 myid 的内容</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 配置子节点上 /etc/profile</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 刷新环境变量</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在所有节点上分别执行命令</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 启动服务</span></span><br><span class="line">zkServer.sh start</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 查看状态</span></span><br><span class="line">zkServer.sh status</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 正确结果应该是: 三个节点中其中一个是leader, 另外两个是follower</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 检查三个节点是否都有QuromPeerMain进程</span></span><br><span class="line">jps</span><br></pre></td></tr></table></figure>
+
+<h2 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h2><h3 id="安装-scala"><a href="#安装-scala" class="headerlink" title="安装 scala"></a>安装 scala</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 解压</span></span><br><span class="line">mkdir -p /opt/scala</span><br><span class="line">tar -zxvf scala-2.12.10.tgz -C /opt/scala/</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 配置环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"></span><br><span class="line">export SCALA_HOME=/opt/scala/scala-2.12.10</span><br><span class="line">export PATH=$PATH:$SCALA_HOME/bin</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 验证</span></span><br><span class="line">scala -version</span><br><span class="line">Scala code runner version 2.12.10 -- Copyright 2002-2019, LAMP/EPFL and Lightbend, Inc.</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 将 scala 安装到其他节点</span></span><br><span class="line">cluster_copy_all_nodes -r /opt/scala/ /opt</span><br><span class="line">cluster_copy_all_nodes /etc/profile /etc</span><br><span class="line">cluster_run_all_nodes "hostname; source /etc/profile"</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装配置-kafka"><a href="#安装配置-kafka" class="headerlink" title="安装配置 kafka"></a>安装配置 kafka</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 创建目录</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 解压文件</span></span><br><span class="line">mkdir -p /opt/kafka</span><br><span class="line">tar -zxvf kafka_2.12-2.3.0.tgz -C /opt/kafka/</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 配置环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line">export KAFKA_HOME=/opt/kafka/kafka_2.12-2.3.0</span><br><span class="line">export PATH=$PATH:$KAFKA_HOME/bin</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 修改 server.properties 文件, 找到对应的位置, 修改如下</span></span><br><span class="line">vi $KAFKA_HOME/config/server.properties</span><br><span class="line"></span><br><span class="line">broker.id=0</span><br><span class="line">listeners=PLAINTEXT://192.168.0.100:9092</span><br><span class="line">advertised.listeners=PLAINTEXT://192.168.0.100:9092</span><br><span class="line">log.dirs=/data/kafka/logs</span><br><span class="line">zookeeper.connect=192.168.0.100:2181,192.168.0.101:2181,192.168.0.102:2181,192.168.0.103:2181</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 修改 zookeeper.properties 文件, 找到对应的位置, 修改如下</span></span><br><span class="line">dataDir=/data/kafka/zookeeper</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 创建相关文件夹</span></span><br><span class="line">mkdir -p /data/kafka/zookeeper</span><br><span class="line">mkdir -p /data/kafka/logs</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 同步文件到其他节点</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在另外节点上，对server.properties要有几处修改</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> broker.id 分别修改成： 1  2  3</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> listeners 在 ip 那里分别修改成子节点对应的 ip</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> advertised.listeners 也在 ip 那里分别修改成子节点对应的 ip</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> zookeeper.connect 不需要修改</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 另外节点上也别忘了配置kafka环境变量</span></span><br><span class="line">cluster_copy_all_nodes -r /opt/kafka/ /opt</span><br><span class="line">cluster_copy_all_nodes -r /data/kafka/ /data</span><br><span class="line">cluster_copy_all_nodes /etc/profile /etc</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a>测试</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在所有节点上都启动 kafka</span></span><br><span class="line">nohup kafka-server-start.sh $KAFKA_HOME/config/server.properties &amp;</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在主节点上创建主题TestTopic</span></span><br><span class="line">kafka-topics.sh --zookeeper 192.168.0.100:2181,192.168.0.101:2181,192.168.0.102:2181,192.168.0.103:2181 --topic TestTopic --replication-factor 1 --partitions 1 --create</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在主节点上启动一个生产者</span></span><br><span class="line">kafka-console-producer.sh --broker-list 192.168.0.100:9092,192.168.0.101:9092,192.168.0.102:9092,192.168.0.103:9092 --topic TestTopic</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在其他节点上分别创建消费者</span></span><br><span class="line">kafka-console-consumer.sh --bootstrap-server 192.168.0.101:9092 --topic TestTopic --from-beginning</span><br><span class="line">kafka-console-consumer.sh --bootstrap-server 192.168.0.102:9092 --topic TestTopic --from-beginning</span><br><span class="line">kafka-console-consumer.sh --bootstrap-server 192.168.0.103:9092 --topic TestTopic --from-beginning</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在主节点生产者命令行那里随便输入一段话</span></span><br><span class="line"><span class="hljs-meta">&gt;</span><span class="hljs-bash"> hello world</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 然后你就会发现在其他两个消费者节点那里也出现了这句话, 即消费到了该数据</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Flume"><a href="#Flume" class="headerlink" title="Flume"></a>Flume</h2><h3 id="环境配置-2"><a href="#环境配置-2" class="headerlink" title="环境配置"></a>环境配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> flume只需要在主节点配置, 不需要在其他节点配置</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 创建目录, 解压文件</span></span><br><span class="line">mkdir -p /opt/flume</span><br><span class="line">tar -zxvf apache-flume-1.9.0-bin.tar.gz -C /opt/flume/</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line">export FLUME_HOME=/opt/flume/apache-flume-1.9.0-bin</span><br><span class="line">export FLUME_CONF_DIR=$FLUME_HOME/conf</span><br><span class="line">export PATH=$PATH:$FLUME_HOME/bin</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-flume-conf-properties"><a href="#修改-flume-conf-properties" class="headerlink" title="修改 flume-conf.properties"></a>修改 flume-conf.properties</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">cp  $FLUME_CONF_DIR/flume-conf.properties.template  $FLUME_CONF_DIR/flume-conf.properties</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 在文件追加</span></span><br><span class="line">vi $FLUME_CONF_DIR/flume-conf.properties</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">agent1表示代理名称</span></span><br><span class="line">agent1.sources=source1</span><br><span class="line">agent1.sinks=sink1</span><br><span class="line">agent1.channels=channel1</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">配置source1</span></span><br><span class="line">agent1.sources.source1.type=spooldir</span><br><span class="line">agent1.sources.source1.spoolDir=/data/flume/logs</span><br><span class="line">agent1.sources.source1.channels=channel1</span><br><span class="line">agent1.sources.source1.fileHeader = false</span><br><span class="line">agent1.sources.source1.interceptors = i1</span><br><span class="line">agent1.sources.source1.interceptors.i1.type = timestamp</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">配置channel1</span></span><br><span class="line">agent1.channels.channel1.type=file</span><br><span class="line">agent1.channels.channel1.checkpointDir=/data/flume/logs_tmp_cp</span><br><span class="line">agent1.channels.channel1.dataDirs=/data/flume/logs_tmp</span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash">配置sink1</span></span><br><span class="line">agent1.sinks.sink1.type=hdfs</span><br><span class="line">agent1.sinks.sink1.hdfs.path=hdfs://master:9000/logs</span><br><span class="line">agent1.sinks.sink1.hdfs.fileType=DataStream</span><br><span class="line">agent1.sinks.sink1.hdfs.writeFormat=TEXT</span><br><span class="line">agent1.sinks.sink1.hdfs.rollInterval=1</span><br><span class="line">agent1.sinks.sink1.channel=channel1</span><br><span class="line">agent1.sinks.sink1.hdfs.filePrefix=%Y-%m-%d</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 我们看到上面的配置文件中代理 agent1.sources.source1.spoolDir 监听的文件夹是 /data/flume/logs, 所以我们要手动创建一下</span></span><br><span class="line">mkdir -p /data/flume/logs</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 上面的配置文件中 agent1.sinks.sink1.hdfs.path=hdfs://master:9000/logs 下，即将监听到的 /data/flume/logs 下的文件自动上传到 hdfs 的 /logs 下, 所以我们要手动创建hdfs 下的目录</span></span><br><span class="line">hdfs dfs -mkdir /logs</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-3"><a href="#测试-3" class="headerlink" title="测试"></a>测试</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 删除</span></span><br><span class="line">rm $FLMUE_HOME/lib/slf4j-log4j12-1.7.25.jar</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 启动服务</span></span><br><span class="line">nohup flume-ng agent -n agent1 -c conf -f $FLUME_CONF_DIR/flume-conf.properties -Dflume.root.logger=DEBUG,console &amp;</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 先看下hdfs的logs目录下, 目前什么都没有</span></span><br><span class="line">drwxr-xr-x   - root supergroup          0 2019-10-20 16:53 /logs</span><br><span class="line">drwxr-xr-x   - root supergroup          0 2019-10-20 16:53 /logs</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 我们在 /data/flume/logs 随便创建个文件</span></span><br><span class="line">vi /data/flume/logs/test.txt</span><br><span class="line">hunan university</span><br><span class="line">gallon</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 然后我们发现hdfs的logs下自动上传了我们刚刚创建的文件</span></span><br><span class="line">hdfs dfs -ls -R /</span><br><span class="line">-rw-r--r--   2 root supergroup         24 2019-10-20 16:45 /logs/2019-10-20.1571561139240</span><br><span class="line"></span><br><span class="line">hdfs dfs -cat  /logs/2019-10-20.1571561139240</span><br><span class="line">hunan university</span><br><span class="line">gallon</span><br></pre></td></tr></table></figure>
+
+<h2 id="Hbase"><a href="#Hbase" class="headerlink" title="Hbase"></a>Hbase</h2><h3 id="环境配置-3"><a href="#环境配置-3" class="headerlink" title="环境配置"></a>环境配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 创建目录</span></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 解压文件</span></span><br><span class="line">mkdir -p /opt/hbase</span><br><span class="line">tar -zxvf hbase-2.2.1-bin.tar.gz -C /opt/hbase</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"></span><br><span class="line">export HBASE_HOME=/opt/hbase/hbase-2.2.1</span><br><span class="line">export PATH=$PAHT:$HBASE_HOME/bin</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-hbase-env-sh-文件"><a href="#修改-hbase-env-sh-文件" class="headerlink" title="修改 hbase-env.sh 文件"></a>修改 hbase-env.sh 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vi $HBASE_HOME/conf/hbase-env.sh </span><br><span class="line"></span><br><span class="line">export JAVA_HOME=/opt/java/jdk1.8.0_221</span><br><span class="line">export HBASE_LOG_DIR=/data/hbase/logs </span><br><span class="line">export HBASE_MANAGES_ZK=false</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-hbase-site-xml-文件"><a href="#修改-hbase-site-xml-文件" class="headerlink" title="修改 hbase-site.xml 文件"></a>修改 hbase-site.xml 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">vi $HBASE_HOME/conf/hbase-site.xml</span><br><span class="line"></span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">	&lt;property&gt; </span><br><span class="line">    &lt;name&gt;hbase.rootdir&lt;/name&gt; </span><br><span class="line">    &lt;value&gt;hdfs://master:9000/hbase&lt;/value&gt; </span><br><span class="line">  &lt;/property&gt; </span><br><span class="line">  &lt;property&gt; </span><br><span class="line">    &lt;name&gt;hbase.cluster.distributed&lt;/name&gt; </span><br><span class="line">    &lt;value&gt;true&lt;/value&gt; </span><br><span class="line">  &lt;/property&gt; </span><br><span class="line">  &lt;property&gt; </span><br><span class="line">    &lt;name&gt;hbase.zookeeper.quorum&lt;/name&gt; </span><br><span class="line">    &lt;value&gt;master,slave1,slave2,slave3&lt;/value&gt; </span><br><span class="line">  &lt;/property&gt;  </span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hbase.tmp.dir&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;/data/hbase/tmp&lt;/value&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">  &lt;property&gt; </span><br><span class="line">    &lt;name&gt;hbase.master&lt;/name&gt; </span><br><span class="line">    &lt;value&gt;hdfs://master:60000&lt;/value&gt; </span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hbase.master.info.port&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;16010&lt;/value&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hbase.regionserver.info.port&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;16030&lt;/value&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;hbase.unsafe.stream.capability.enforce&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;false&lt;/value&gt;</span><br><span class="line">    &lt;description&gt;完全分布式式必须为false&lt;/description&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-regionservers-文件"><a href="#修改-regionservers-文件" class="headerlink" title="修改 regionservers 文件"></a>修改 regionservers 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vi $HBASE_HOME/conf/regionservers </span><br><span class="line"></span><br><span class="line">master</span><br><span class="line">slave1</span><br><span class="line">slave2</span><br><span class="line">slave3</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他节点配置"><a href="#其他节点配置" class="headerlink" title="其他节点配置"></a>其他节点配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 复制文件</span></span><br><span class="line">cluster_copy_all_nodes -r /opt/hbase/ /opt</span><br><span class="line">cluster_copy_all_nodes -r /data/hbase/ /data</span><br><span class="line">cluster_copy_all_nodes /etc/profile /etc</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 刷新环境</span></span><br><span class="line">cluster_run_all_nodes "hostname; source /etc/profile"</span><br><span class="line"></span><br><span class="line">cluster_run_all_nodes "rm /opt/hbase/hbase-2.2.1/lib/client-facing-thirdparty/slf4j-log4j12-1.7.25.jar"</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-4"><a href="#测试-4" class="headerlink" title="测试"></a>测试</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rm /opt/hbase/hbase-2.2.1/lib/client-facing-thirdparty/slf4j-log4j12-1.7.25.jar</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 注意：测试Hbase之前, zookeeper 和 hadoop 需要提前启动起来</span></span><br><span class="line">start-hbase.sh   </span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 正确结果：主节点上显示：HMaster / 子节点上显示：HRegionServer</span></span><br></pre></td></tr></table></figure>
+
+<p>在浏览器中访问 <a href="http://master:16010" target="_blank" rel="noopener">web ui</a></p>
+<h2 id="Spark"><a href="#Spark" class="headerlink" title="Spark"></a>Spark</h2><h3 id="环境配置-4"><a href="#环境配置-4" class="headerlink" title="环境配置"></a>环境配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 创建目录, 解压文件</span></span><br><span class="line">mkdir -p /opt/spark</span><br><span class="line">tar -zxvf spark-2.4.4-bin-hadoop2.7.tgz -C /opt/spark/</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 配置环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"></span><br><span class="line">export SPARK_HOME=/opt/spark/spark-2.4.4-bin-hadoop2.7</span><br><span class="line">export PATH=$PATH:$SPARK_HOME/sbin:$SPARK_HOME/bin</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-spark-env-sh-文件"><a href="#修改-spark-env-sh-文件" class="headerlink" title="修改 spark-env.sh 文件"></a>修改 spark-env.sh 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh</span><br><span class="line">vi $SPARK_HOME/conf/spark-env.sh</span><br><span class="line"></span><br><span class="line">SPARK_LOG_DIR=/data/spark/logs</span><br><span class="line">export JAVA_HOME=/opt/java/jdk1.8.0_221</span><br><span class="line">export SCALA_HOME=/opt/scala/scala-2.12.10</span><br><span class="line">export HADOOP_HOME=/opt/hadoop/hadoop-3.1.2</span><br><span class="line">export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop</span><br><span class="line"></span><br><span class="line">mkdir -p /data/spark/logs</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#</span><span class="hljs-bash"> 文件重命名</span></span><br><span class="line">mv $SPARK_HOME/sbin/start-all.sh $SPARK_HOME/sbin/start-spark-all.sh</span><br><span class="line">mv $SPARK_HOME/sbin/stop-all.sh $SPARK_HOME/sbin/stop-spark-all.sh</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-slaves-文件"><a href="#修改-slaves-文件" class="headerlink" title="修改 slaves 文件"></a>修改 slaves 文件</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cp $SPARK_HOME/conf/slaves.template $SPARK_HOME/conf/slaves</span><br><span class="line">vi $SPARK_HOME/conf/slaves</span><br><span class="line"></span><br><span class="line">master</span><br><span class="line">slave1</span><br><span class="line">slave2</span><br><span class="line">slave3</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他节点配置-1"><a href="#其他节点配置-1" class="headerlink" title="其他节点配置"></a>其他节点配置</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cluster_copy_all_nodes -r /opt/spark/ /opt/</span><br><span class="line">cluster_copy_all_nodes /etc/profile /etc</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vi start-master.sh</span><br><span class="line"></span><br><span class="line">SPARK_MASTER_WEBUI_PORT=8001</span><br><span class="line"></span><br><span class="line">./start-all.sh</span><br></pre></td></tr></table></figure>
+
+<p>启动完毕后在主机浏览器访问<a href="http://master:8001/" target="_blank" rel="noopener">界面</a></p>
+<p><a style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px" href="https://unsplash.com/@heytowner?utm_medium=referral&amp;utm_campaign=photographer-credit&amp;utm_content=creditBadge" target="_blank" rel="noopener noreferrer" title="Download free do whatever you want high-resolution photos from JOHN TOWNER"><span style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg" style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white" viewbox="0 0 32 32"><title>unsplash-logo</title><path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"/></svg></span><span style="display:inline-block;padding:2px 3px">JOHN TOWNER</span></a></p>
+
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/Install/" rel="tag">Install</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="social-share"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css">
+<script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/alipay.jpg" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/wechatpay.jpg" alt="微信"></div>
+</a>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/posts/735ce64f/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">HA高可用集群搭建</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/posts/1f364dfa/">
+                <span class="level-item">RabbitMQ基础概念</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="title is-5 has-text-weight-normal">评论</h3>
+        
+<div id="valine-thread" class="content"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#valine-thread' ,
+        notify: false,
+        verify: false,
+        app_id: '67YP66D1kdqJwPueQ0pGewWc-gzGzoHsz',
+        app_key: 'dBYsXpznvy89hCafAtx0fE4g',
+        placeholder: 'Just go go'
+    });
+</script>
+
+    </div>
+</div>
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                    <figure class="image is-128x128 has-mb-6">
+                        <img class="" src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/v2-0e5421e09670c8ca98fe6cbba05d2de4_hd.jpg" alt="gallon">
+                    </figure>
+                    
+                    <p class="is-size-4 is-block">
+                        gallon
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        奔跑的小白
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>Hunan University</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <a href="/archives">
+                        <p class="title has-text-weight-normal">
+                            14
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <a href="/categories">
+                        <p class="title has-text-weight-normal">
+                            3
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <a href="/tags">
+                        <p class="title has-text-weight-normal">
+                            15
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/GallonHu" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/GallonHu">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/atom.xml">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Mail" href="mailto:18273170036@163.com">
+                
+                <i class="fas fa-envelope"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+
+    <div class="card widget" id="toc">
+        <div class="card-content">
+            <div class="menu">
+                <h3 class="menu-label">
+                    目录
+                </h3>
+                <ul class="menu-list"><li>
+        <a class="is-flex" href="#基本设置">
+        <span class="has-mr-6">1</span>
+        <span>基本设置</span>
+        </a></li><li>
+        <a class="is-flex" href="#ssh-互信">
+        <span class="has-mr-6">2</span>
+        <span>ssh 互信</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#节点配置">
+        <span class="has-mr-6">2.1</span>
+        <span>节点配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#脚本">
+        <span class="has-mr-6">2.2</span>
+        <span>脚本</span>
+        </a></li><li>
+        <a class="is-flex" href="#配置环境变量">
+        <span class="has-mr-6">2.3</span>
+        <span>配置环境变量</span>
+        </a></li><li>
+        <a class="is-flex" href="#配置集群ssh互信">
+        <span class="has-mr-6">2.4</span>
+        <span>配置集群ssh互信</span>
+        </a></li><li>
+        <a class="is-flex" href="#结尾">
+        <span class="has-mr-6">2.5</span>
+        <span>结尾</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Hadoop">
+        <span class="has-mr-6">3</span>
+        <span>Hadoop</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#关闭防火墙">
+        <span class="has-mr-6">3.1</span>
+        <span>关闭防火墙</span>
+        </a></li><li>
+        <a class="is-flex" href="#Java-安装配置">
+        <span class="has-mr-6">3.2</span>
+        <span>Java 安装配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#主节点">
+        <span class="has-mr-6">3.3</span>
+        <span>主节点</span>
+        </a></li><li>
+        <a class="is-flex" href="#子节点">
+        <span class="has-mr-6">3.4</span>
+        <span>子节点</span>
+        </a></li><li>
+        <a class="is-flex" href="#测试是否配置成功">
+        <span class="has-mr-6">3.5</span>
+        <span>测试是否配置成功</span>
+        </a></li><li>
+        <a class="is-flex" href="#web-ui">
+        <span class="has-mr-6">3.6</span>
+        <span>web ui</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Hive">
+        <span class="has-mr-6">4</span>
+        <span>Hive</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#环境配置">
+        <span class="has-mr-6">4.1</span>
+        <span>环境配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-hive-site-xml">
+        <span class="has-mr-6">4.2</span>
+        <span>修改 hive-site.xml</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-hive-env-sh-文件">
+        <span class="has-mr-6">4.3</span>
+        <span>修改 hive-env.sh 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#设置-logs">
+        <span class="has-mr-6">4.4</span>
+        <span>设置 logs</span>
+        </a></li><li>
+        <a class="is-flex" href="#安装并配置-mysql">
+        <span class="has-mr-6">4.5</span>
+        <span>安装并配置 mysql</span>
+        </a></li><li>
+        <a class="is-flex" href="#初始化">
+        <span class="has-mr-6">4.6</span>
+        <span>初始化</span>
+        </a></li><li>
+        <a class="is-flex" href="#测试">
+        <span class="has-mr-6">4.7</span>
+        <span>测试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Zookeeper">
+        <span class="has-mr-6">5</span>
+        <span>Zookeeper</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#环境配置-1">
+        <span class="has-mr-6">5.1</span>
+        <span>环境配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#配置-zoo-cfg-文件">
+        <span class="has-mr-6">5.2</span>
+        <span>配置 zoo.cfg 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#配置-myid-文件">
+        <span class="has-mr-6">5.3</span>
+        <span>配置 myid 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#设置-logs-目录">
+        <span class="has-mr-6">5.4</span>
+        <span>设置 logs 目录</span>
+        </a></li><li>
+        <a class="is-flex" href="#配置其他节点">
+        <span class="has-mr-6">5.5</span>
+        <span>配置其他节点</span>
+        </a></li><li>
+        <a class="is-flex" href="#测试-1">
+        <span class="has-mr-6">5.6</span>
+        <span>测试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Kafka">
+        <span class="has-mr-6">6</span>
+        <span>Kafka</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#安装-scala">
+        <span class="has-mr-6">6.1</span>
+        <span>安装 scala</span>
+        </a></li><li>
+        <a class="is-flex" href="#安装配置-kafka">
+        <span class="has-mr-6">6.2</span>
+        <span>安装配置 kafka</span>
+        </a></li><li>
+        <a class="is-flex" href="#测试-2">
+        <span class="has-mr-6">6.3</span>
+        <span>测试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Flume">
+        <span class="has-mr-6">7</span>
+        <span>Flume</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#环境配置-2">
+        <span class="has-mr-6">7.1</span>
+        <span>环境配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-flume-conf-properties">
+        <span class="has-mr-6">7.2</span>
+        <span>修改 flume-conf.properties</span>
+        </a></li><li>
+        <a class="is-flex" href="#测试-3">
+        <span class="has-mr-6">7.3</span>
+        <span>测试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Hbase">
+        <span class="has-mr-6">8</span>
+        <span>Hbase</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#环境配置-3">
+        <span class="has-mr-6">8.1</span>
+        <span>环境配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-hbase-env-sh-文件">
+        <span class="has-mr-6">8.2</span>
+        <span>修改 hbase-env.sh 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-hbase-site-xml-文件">
+        <span class="has-mr-6">8.3</span>
+        <span>修改 hbase-site.xml 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-regionservers-文件">
+        <span class="has-mr-6">8.4</span>
+        <span>修改 regionservers 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#其他节点配置">
+        <span class="has-mr-6">8.5</span>
+        <span>其他节点配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#测试-4">
+        <span class="has-mr-6">8.6</span>
+        <span>测试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Spark">
+        <span class="has-mr-6">9</span>
+        <span>Spark</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#环境配置-4">
+        <span class="has-mr-6">9.1</span>
+        <span>环境配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-spark-env-sh-文件">
+        <span class="has-mr-6">9.2</span>
+        <span>修改 spark-env.sh 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改-slaves-文件">
+        <span class="has-mr-6">9.3</span>
+        <span>修改 slaves 文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#其他节点配置-1">
+        <span class="has-mr-6">9.4</span>
+        <span>其他节点配置</span>
+        </a></li><li>
+        <a class="is-flex" href="#启动">
+        <span class="has-mr-6">9.5</span>
+        <span>启动</span>
+        </a></li></ul></li></ul>
+            </div>
+        </div>
+    </div>
+
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+            
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/Bigdata/">
+            <span class="level-start">
+                <span class="level-item">Bigdata</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Linux/">
+            <span class="level-start">
+                <span class="level-item">Linux</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Tutorials/">
+            <span class="level-start">
+                <span class="level-item">Tutorials</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/posts/918ab41d/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1508971607899-a238a095d417?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=2768&amp;q=80" alt="archlinuxa安装配置">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-11T02:07:07.000Z">2020-02-11</time></div>
+                    <a href="/posts/918ab41d/" class="title has-link-black-ter is-size-6 has-text-weight-normal">archlinuxa安装配置</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Linux/">Linux</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/fbcc746f/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="软件工具篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T02:00:14.000Z">2019-12-26</time></div>
+                    <a href="/posts/fbcc746f/" class="title has-link-black-ter is-size-6 has-text-weight-normal">软件工具篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/7309d80/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="终端利器之tmux篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T01:59:04.000Z">2019-12-26</time></div>
+                    <a href="/posts/7309d80/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之tmux篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/848c0324/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1537311597144-e497bdef2ca8?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1267&amp;q=80" alt="终端利器之vim篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-17T11:14:34.000Z">2019-12-17</time></div>
+                    <a href="/posts/848c0324/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之vim篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/eec0bc4e/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1571028634586-ae87c1a42432?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=633&amp;q=80" alt="终端利器之zsh篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-16T06:50:38.000Z">2019-12-16</time></div>
+                    <a href="/posts/eec0bc4e/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之zsh篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">13</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Archlinux/">
+                        <span class="tag">Archlinux</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Blog/">
+                        <span class="tag">Blog</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Hexo/">
+                        <span class="tag">Hexo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Install/">
+                        <span class="tag">Install</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jupyter/">
+                        <span class="tag">Jupyter</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Markdown/">
+                        <span class="tag">Markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/NTP/">
+                        <span class="tag">NTP</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Python/">
+                        <span class="tag">Python</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/RabbitMQ/">
+                        <span class="tag">RabbitMQ</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Shell/">
+                        <span class="tag">Shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Spark/">
+                        <span class="tag">Spark</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Terminal/">
+                        <span class="tag">Terminal</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Vim/">
+                        <span class="tag">Vim</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Virtualenv/">
+                        <span class="tag">Virtualenv</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Zsh/">
+                        <span class="tag">Zsh</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only has-order-3 column-right ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/Bigdata/">
+            <span class="level-start">
+                <span class="level-item">Bigdata</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Linux/">
+            <span class="level-start">
+                <span class="level-item">Linux</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Tutorials/">
+            <span class="level-start">
+                <span class="level-item">Tutorials</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/posts/918ab41d/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1508971607899-a238a095d417?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=2768&amp;q=80" alt="archlinuxa安装配置">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-11T02:07:07.000Z">2020-02-11</time></div>
+                    <a href="/posts/918ab41d/" class="title has-link-black-ter is-size-6 has-text-weight-normal">archlinuxa安装配置</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Linux/">Linux</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/fbcc746f/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="软件工具篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T02:00:14.000Z">2019-12-26</time></div>
+                    <a href="/posts/fbcc746f/" class="title has-link-black-ter is-size-6 has-text-weight-normal">软件工具篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/7309d80/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="终端利器之tmux篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T01:59:04.000Z">2019-12-26</time></div>
+                    <a href="/posts/7309d80/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之tmux篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/848c0324/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1537311597144-e497bdef2ca8?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1267&amp;q=80" alt="终端利器之vim篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-17T11:14:34.000Z">2019-12-17</time></div>
+                    <a href="/posts/848c0324/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之vim篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/eec0bc4e/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1571028634586-ae87c1a42432?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=633&amp;q=80" alt="终端利器之zsh篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-16T06:50:38.000Z">2019-12-16</time></div>
+                    <a href="/posts/eec0bc4e/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之zsh篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">13</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Archlinux/">
+                        <span class="tag">Archlinux</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Blog/">
+                        <span class="tag">Blog</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Hexo/">
+                        <span class="tag">Hexo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Install/">
+                        <span class="tag">Install</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jupyter/">
+                        <span class="tag">Jupyter</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Markdown/">
+                        <span class="tag">Markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/NTP/">
+                        <span class="tag">NTP</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Python/">
+                        <span class="tag">Python</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/RabbitMQ/">
+                        <span class="tag">RabbitMQ</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Shell/">
+                        <span class="tag">Shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Spark/">
+                        <span class="tag">Spark</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Terminal/">
+                        <span class="tag">Terminal</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Vim/">
+                        <span class="tag">Vim</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Virtualenv/">
+                        <span class="tag">Virtualenv</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Zsh/">
+                        <span class="tag">Zsh</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png" alt="大数据平台安装" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 gallon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                <br>
+                <span id="busuanzi_container_site_uv">
+                共<span id="busuanzi_value_site_uv">0</span>个访客
+                </span>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+<script>
+var IcarusThemeSettings = {
+    article: {
+        highlight: {
+            clipboard: true,
+            fold: 'unfolded'
+        }
+    }
+};
+</script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+
+
+
+    
+    
+<script src="/js/animation.js"></script>
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+<script src="/js/gallery.js" defer></script>
+
+    
+    
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" target="_blank" rel="noopener">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+    
+    
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

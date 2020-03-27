@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8" />
+
+<meta name="generator" content="Hexo 4.1.0" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<title>spark基本概念 - Gallon</title>
+
+
+    <meta name="description" content="RDD Programming Guide翻译自官方文档，本文值翻译了部分 Python 部分。 概述从高层次看，每个 Spark 应用都包含一个驱动程序，用于执行用户的 main 函数以及在集群上进行各种并行操作。Spark 提供的重要抽象是弹性分布式数据集（ resilient distributed dataset），这是一个包含诸多元素、被划分到不同节点上进行并行处理的数据集。RDDs 通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spark基本概念">
+<meta property="og:url" content="http:&#x2F;&#x2F;gallonhu.github.io&#x2F;posts&#x2F;8509da34&#x2F;index.html">
+<meta property="og:site_name" content="Gallon">
+<meta property="og:description" content="RDD Programming Guide翻译自官方文档，本文值翻译了部分 Python 部分。 概述从高层次看，每个 Spark 应用都包含一个驱动程序，用于执行用户的 main 函数以及在集群上进行各种并行操作。Spark 提供的重要抽象是弹性分布式数据集（ resilient distributed dataset），这是一个包含诸多元素、被划分到不同节点上进行并行处理的数据集。RDDs 通">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;images.unsplash.com&#x2F;photo-1576344069300-e4273f6dfdf8?ixlib&#x3D;rb-1.2.1&amp;ixid&#x3D;eyJhcHBfaWQiOjEyMDd9&amp;auto&#x3D;format&amp;fit&#x3D;crop&amp;w&#x3D;1050&amp;q&#x3D;80">
+<meta property="article:published_time" content="2019-12-16T02:43:38.000Z">
+<meta property="article:modified_time" content="2019-12-16T03:04:17.449Z">
+<meta property="article:author" content="gallon">
+<meta property="article:tag" content="Spark">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;images.unsplash.com&#x2F;photo-1576344069300-e4273f6dfdf8?ixlib&#x3D;rb-1.2.1&amp;ixid&#x3D;eyJhcHBfaWQiOjEyMDd9&amp;auto&#x3D;format&amp;fit&#x3D;crop&amp;w&#x3D;1050&amp;q&#x3D;80">
+
+
+
+
+
+<link rel="alternative" href="/atom.xml" title="spark基本概念" type="application/atom+xml">
+
+
+
+<link rel="icon" href="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+<style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+    
+    
+    
+    
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+    
+    
+    
+    
+    
+    
+    
+    <link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+    
+    <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png" alt="spark基本概念" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+				<div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+<div class="card">
+    
+    <div class="card-image">
+        <span  class="image is-7by1">
+            <img class="thumbnail" src="https://images.unsplash.com/photo-1576344069300-e4273f6dfdf8?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1050&amp;q=80" alt="spark基本概念">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-16T02:43:38.000Z">2019-12-16</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/Bigdata/">Bigdata</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    1 小时 读完 (大约 11052 个字)
+                </span>
+                
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                spark基本概念
+            
+        </h1>
+        <div class="content">
+            <h1 id="RDD-Programming-Guide"><a href="#RDD-Programming-Guide" class="headerlink" title="RDD Programming Guide"></a>RDD Programming Guide</h1><p>翻译自<a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html" target="_blank" rel="noopener">官方文档</a>，本文值翻译了部分 Python 部分。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>从高层次看，每个 Spark 应用都包含一个驱动程序，用于执行用户的 main 函数以及在集群上进行各种并行操作。Spark 提供的重要抽象是弹性分布式数据集（ <em>resilient distributed dataset</em>），这是一个包含诸多元素、被划分到不同节点上进行并行处理的数据集。RDDs 通过打开一个 HDFS 文件（或者其他任何 hadoop 支持的文件系统）、在驱动程序中打开一个已有的 Scala 数据集或者由其他 RDD 转换得到。用户可以要求 Spark 将 RDD 持久化到内存中，这样可以有效的在并行运算中复用。另外，RDDs 在节点发生错误时会自动恢复。</p>
+<p>Spark 的另一个抽象是在并行运算中使用的共享变量。在默认情况下，当 Spark 将一个函数转化成许多任务在不同节点上运行的时候，对于所有在函数中使用的变量，每一个任务都会得到一个副本。有时，一个变量需要在任务之间或者任务和驱动程序之间共享。Spark 支持两种共享变量：广播变量，用来将一个值缓存到所有节点的内存中；累加器，只能用于累加，比如计数器和求和。</p>
+<a id="more"></a>
+
+<h2 id="连接-Spark"><a href="#连接-Spark" class="headerlink" title="连接 Spark"></a>连接 Spark</h2><p>Spark2.4.4 支持 Python2.7+ 或 Python3.4+。它使用标准的 CPython 解释器，因此诸如 NumPy 之类的 C 库也是可以使用的。</p>
+<p>Python 中的 Spark 应用程序既可以在运行时使用包含 Spark 的 bin/spark-submit 脚本运行，也可以将其包含在setup.py 中，如下所示：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">install_requires=[</span><br><span class="line">      <span class="hljs-string">'pyspark==&#123;site.SPARK_VERSION&#125;'</span></span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
+
+<p>要在 Python 中运行 Spark 应用程序而无需安装 PySpark，请使用 Spark 目录中的 bin/spark-submit 脚本。 该脚本将加载 Spark 的 Java/Scala 库，并允许你将应用程序提交到集群。 你还可以使用 bin/pyspark启动交互是 Python Shell。</p>
+<p>如果你想要访问 HDFS 中的数据，你需要为你使用的 HDFS 版本建立一个 PySpark 连接。</p>
+<p>最后，你需要将一些 Spark 类 import 到你的程序中。加入如下这行：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">from</span> pyspark <span class="hljs-keyword">import</span> SparkContext, SparkConf</span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化-Spark"><a href="#初始化-Spark" class="headerlink" title="初始化 Spark"></a>初始化 Spark</h3><p>在一个 Spark 程序中要做的第一件事就是创建一个 SparkContext 对象来高速 Spark 如何连接一个集群。要创建一个 SparkContext，你首先要创建一个包含你的应用的信息的 SparkConf 对象。</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conf = SparkConf().setAppName(appName).setMaster(master)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br></pre></td></tr></table></figure>
+
+<p>appName 参数是在集群 UI 上显示你的应用名称。master 是一个 Spark、Mesos 或 YARN 集群的 URL，特殊的 “local” 字符串表示在本地运行。在实际使用中，当你在集群中运行你的程序，你一般不会把 master 参数在代码中写死，而是通过 spark-submit 运行程序来回去这个参数。但是，在本地测试及单元测试时，你仍需要传入 “local” 参数来运行程序。</p>
+<h3 id="使用命令行"><a href="#使用命令行" class="headerlink" title="使用命令行"></a>使用命令行</h3><p>在 PySpark 命令行中，一个特殊的集成在解释器里的 SparkContext 变量已经建立好了，变量名叫做 sc 。创建你自己的 SparkContext 不会起作用。你可以通过使用 —master 命令行参数来设置这个上下文连接的 master 主机，你也可以通过 —py-files 参数传递一个用逗号隔开的列表来将 Python 的 .zip、.egg 或. py 文件添加到运行时路径中。你还可以通过 —package 参数传递一个用逗号隔开的 maven 列表来给这个命令行会话添加依赖（比如Spark 的包）。任何额外的包含依赖包的仓库（比如 SonaType ）都可以通过传给 —repositorys 参数来添加进去。Spark 包的所有 Python 依赖（列在这个包的 requirements.txt 文件中）在必要时都必须通过 pip 手动安装。</p>
+<p>比如，使用四核来运行bin/pyspark应当输入这个命令：</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">$</span><span class="hljs-bash"> ./bin/pyspark --master <span class="hljs-built_in">local</span>[4]</span></span><br></pre></td></tr></table></figure>
+
+<p>又比如，把 code.py 文件添加到搜索路径中（为了能够 import 在程序中），应当使用这条命令：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./bin/pyspark --master local[<span class="hljs-number">4</span>] --py-files code.py</span><br></pre></td></tr></table></figure>
+
+<p>想要了解命令行选项的完整信息请执行 pyspark –help 命令。在这些场景下，pyspark 会触发一个更通用的 spark-submit 脚本</p>
+<p>在 IPython 这个加强的 Python 解释器中运行 PySpark 也是可行的。PySpark 可以在 1.0.0 或更高版本的 IPython上运行。为了使用 IPython，必须在运行 bin/pyspark 时将 PYSPARK_DRIVER_PYTHON 变量设置为 ipython，就像这样：</p>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">$</span><span class="hljs-bash"> PYSPARK_DRIVER_PYTHON=ipython ./bin/pyspark</span></span><br></pre></td></tr></table></figure>
+
+<p>你还可以通过设置 PYSPARK_DRIVER_PYTHON_OPTS 来定制化 ipython 或 jupyter。</p>
+<h2 id="弹性分布式数据集（RDD）"><a href="#弹性分布式数据集（RDD）" class="headerlink" title="弹性分布式数据集（RDD）"></a>弹性分布式数据集（RDD）</h2><p>Spark 是以 RDD概念为中心运行的。RDD 是一个容错的、可以被并行运算的元素集合。有两种方法创建 RDDs：在你的驱动程序中并行化一个已经存在的集合；从外部存储系统中引用一个数据集，例如一个共享文件系统、HDFS、HBase 或任何提供了 Hadoop 输入格式的数据源。</p>
+<h3 id="并行化数据集"><a href="#并行化数据集" class="headerlink" title="并行化数据集"></a>并行化数据集</h3><p>并行化数据集是通过在驱动程序中一个现有的迭代器或集合上调用 SparkContext 的 parallelize 方法建立的。为了创建一个能够并行操作的分布数据集，集合中的元素都会被拷贝。比如，以下的语句建立了一个包含 1 到 5 的并行化数据集：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]</span><br><span class="line">distData = sc.parallelize(data)</span><br></pre></td></tr></table></figure>
+
+<p>分布式数据集一旦被建立，就可以进行并行运算。例如，我们可以调用 distData.reduce(lambda a, b: a + b) 来对元素进行累加。在后文我们再详细描述分布数据集上的操作。</p>
+<p>并行集合的一个重要参数是将数据集划分成片的数量。对于每一个分片，Spark 会再集群中运行一个对应的任务。典型情况下，集群中的每个 CPU 将对应运行 2-4 个分片。通常，Spark 会根据你的集群自动设置分片的数量。但是，你也可以通过将第二个参数传递给 parallelize 方法(比如 sc.parallelize(data, 10))来手动确定分片数量。注意：有些代码中会使用切片（slice，分片的同义词）这个术语来保持向下兼容性。</p>
+<h3 id="外部数据集"><a href="#外部数据集" class="headerlink" title="外部数据集"></a>外部数据集</h3><p>PySpark 可以通过 Hadoop 支持的外部数据源（包括本地文件系统、HDFS、Cassandra、HBase、Amazon S3 等等）创建分布数据集。Spark 支持文本文件、序列文件和其他任何 Hadoop 输入格式的文件。</p>
+<p>创建文本文件 RDDs 要使用 SparkContext 的 textFile 方法。这个方法输入一个文件的 URL （本地文件路径或 hdfs://、s3a://等等的 URl）然后读入这个文件并建立一个文本行集合。以下是一个例子：</p>
+  <figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">distFile = sc.textFile(<span class="hljs-string">"data.txt"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>建立完成后 distFIle 就可以调用数据集操作了。例如，我们可以调用 map 和 reduce 操作来累加所有文件行的长度，代码如下：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">distFile.map(<span class="hljs-keyword">lambda</span> s: len(s)).reduce(<span class="hljs-keyword">lambda</span> a, b: a + b)</span><br></pre></td></tr></table></figure>
+
+<p>在 Spark 读入文件时有几点要注意：</p>
+<ul>
+<li>如果使用本地文件路径，要保证文件在工作节点上这个文件也能通过相同的路径访问到。这点可以通过复制文件到所有节点或使用网络挂载的共享文件系统解决。</li>
+<li>包括 textFile 在内的所有基于 Spark 文件读入方法都支持将文件夹、压缩文件和通配符的路径作为参数。比如，以下表达都是合法的：</li>
+</ul>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">textFile(<span class="hljs-string">"/my/directory"</span>)</span><br><span class="line">textFile(<span class="hljs-string">"/my/directory/*.txt"</span>)</span><br><span class="line">textFile(<span class="hljs-string">"/my/directory/*.gz"</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>textFile 也可以通过传入第二个可选参数来控制文件的分片数量。默认情况下，Spark 为文件的每个块创建一个分片（HDFS 中默认块的大小为 128MB）。但是你也可以通过传入一个更大的值来要求建立更多的分片。注意，分片的数量不能比文件块的数量少。</li>
+</ul>
+<p>除了文本文件，Spark 的 Python API 还支持多种其他数据格式：</p>
+<ul>
+<li>SparkContext.wholeTextFiles 能够读入包含多个小文件的目录，然后为每个文件返回一个 (filename, content) 对。这是与 textFIle 为每个文本行返回一条记录想对应。</li>
+<li>RDD.saveAsPickleFile 和 SparkContext.pickleFile 方法支持将 RDD 以简单序列化的 Python 对象格式保存。序列化的过程中会以默认10个一批的数量批量处理。</li>
+<li>序列文件和其他 Hadoop 输入输出文件。</li>
+</ul>
+<p><strong>注意</strong></p>
+<p>这个特性目前仍处于试验阶段，被标记为Experimental，目前只适用于高级用户。这个特性在未来可能会被基于Spark SQL的读写支持所取代，因为Spark SQL是更好的方式。</p>
+<h4 id="可写类型支持"><a href="#可写类型支持" class="headerlink" title="可写类型支持"></a>可写类型支持</h4><p>PySpark 序列文件支持利用 Java 作为中介载入一个键值对 RDD，将可写类型转化成 Java 的基本类型，然后使用 <a href="https://github.com/irmen/Pyrolite/" target="_blank" rel="noopener">Pyrolite</a> 将 java 结果对象序列化。当将一个键值对 RDD 储存到一个序列文件中时 PySpark 将会运行上述过程的相反过程。首先将 Python 对象反序列化成 Java 对象，然后转化成可写类型。以下可写类型会自动转换：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Writable Type</th>
+<th align="left">Python Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Text</td>
+<td align="left">unicode str</td>
+</tr>
+<tr>
+<td align="left">IntWritable</td>
+<td align="left">int</td>
+</tr>
+<tr>
+<td align="left">FloatWritable</td>
+<td align="left">float</td>
+</tr>
+<tr>
+<td align="left">DoubleWritable</td>
+<td align="left">float</td>
+</tr>
+<tr>
+<td align="left">BooleanWritable</td>
+<td align="left">bool</td>
+</tr>
+<tr>
+<td align="left">BytesWritable</td>
+<td align="left">bytearray</td>
+</tr>
+<tr>
+<td align="left">NullWritable</td>
+<td align="left">None</td>
+</tr>
+<tr>
+<td align="left">MapWritable</td>
+<td align="left">dict</td>
+</tr>
+</tbody></table>
+<p>数组不能自动转换。用户需要在读写时指定 ArrayWritable 的子类型。在读入的时候，默认的转换器会把自定义的 ArrayWritable 子类型转化成 Java 的 Object[]，之后序列化成 Python 的元组。为了获得 Python 的 array.array 类型来使用主要类型的数组，用户需要自行指定转换器。</p>
+<h4 id="保存和读取序列文件"><a href="#保存和读取序列文件" class="headerlink" title="保存和读取序列文件"></a>保存和读取序列文件</h4><p>和文本文件类似，序列文件可以通过指定的路径来保存与读取。键值的类型可以自定义，但对于标准的可写类型可以不指定：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>rdd = sc.parallelize(range(<span class="hljs-number">1</span>, <span class="hljs-number">4</span>)).map(<span class="hljs-keyword">lambda</span> x: (x, <span class="hljs-string">"a"</span> * x))</span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>rdd.saveAsSequenceFile(<span class="hljs-string">"path/to/file"</span>)</span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>sorted(sc.sequenceFile(<span class="hljs-string">"path/to/file"</span>).collect())</span><br><span class="line">[(<span class="hljs-number">1</span>, <span class="hljs-string">u'a'</span>), (<span class="hljs-number">2</span>, <span class="hljs-string">u'aa'</span>), (<span class="hljs-number">3</span>, <span class="hljs-string">u'aaa'</span>)]</span><br></pre></td></tr></table></figure>
+
+<h4 id="保存和读取其他-Hadoop-输入输出格式"><a href="#保存和读取其他-Hadoop-输入输出格式" class="headerlink" title="保存和读取其他 Hadoop 输入输出格式"></a>保存和读取其他 Hadoop 输入输出格式</h4><p>PySpark 也可以读取和写入其他 Hadoop 输入输出格式，包括新旧两种 Hadoop MapReduce APIs。如果有必要，一个 Hadoop 配置文件也可以以 Python 字典的形式传入。以下是一个使用 Elasticsearch ESInputFormat 的例子：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>conf = &#123;<span class="hljs-string">"es.resource"</span> : <span class="hljs-string">"index/type"</span>&#125;  <span class="hljs-comment"># assume Elasticsearch is running on localhost defaults</span></span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>rdd = sc.newAPIHadoopRDD(<span class="hljs-string">"org.elasticsearch.hadoop.mr.EsInputFormat"</span>,</span><br><span class="line">                             <span class="hljs-string">"org.apache.hadoop.io.NullWritable"</span>,</span><br><span class="line">                             <span class="hljs-string">"org.elasticsearch.hadoop.mr.LinkedMapWritable"</span>,</span><br><span class="line">                             conf=conf)</span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>rdd.first()  <span class="hljs-comment"># the result is a MapWritable that is converted to a Python dict</span></span><br><span class="line">(<span class="hljs-string">u'Elasticsearch ID'</span>,</span><br><span class="line"> &#123;<span class="hljs-string">u'field1'</span>: <span class="hljs-literal">True</span>,</span><br><span class="line">  <span class="hljs-string">u'field2'</span>: <span class="hljs-string">u'Some Text'</span>,</span><br><span class="line">  <span class="hljs-string">u'field3'</span>: <span class="hljs-number">12345</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>注意，如果这个读入格式仅仅依赖于一个 Hadoop 配置和/或输入路径，而且键值类型都可以根据前面的表格直接转换，那么刚才提到的这种方法非常合适。</p>
+<p>如果你有一些自定义的序列化二进制数据（比如从 Cassandra/HBase 中读取数据），那么你需要首先在 Scala/Java 端将这些数据转化成可以被 Pyrolite 的串行化器处理的数据类型。一个<a href="https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.api.python.Converter" target="_blank" rel="noopener">转换器</a>特质已经提供好了。简单地拓展这个特质同时在convert方法中实现你自己的转换代码即可。记住，要确保这个类以及访问你的输入格式所需的依赖都被打到了 Spark 作业包中，并且确保这个包已经包含到了 PySpark 的 classpath 中。</p>
+<p>这里有一些通过自定义转换器来使用 Cassandra/HBase 输入输出格式的<a href="https://github.com/apache/spark/tree/master/examples/src/main/python" target="_blank" rel="noopener">Python样例</a>和<a href="https://github.com/apache/spark/tree/master/examples/src/main/scala/org/apache/spark/examples/pythonconverters" target="_blank" rel="noopener">转换器样例</a>。</p>
+<h2 id="RDD-操作"><a href="#RDD-操作" class="headerlink" title="RDD 操作"></a>RDD 操作</h2><p>RDD支持两种类型的操作：转换（从现有操作创建新的数据集）和动作（在操作数据集上进行计算后，将值返回给驱动程序）。例如，map 是一个转换，它将每个数据集元素通过一个函数传递，并返回代表结果的新 RDD。另一方面，reduce 是使用某些函数聚合 RDD 的所有元素并将最终结果返回给驱动程序的操作（尽管也有并行的 reduceByKey 返回分布式数据集）。</p>
+<p>Spark 中的所有转换都是惰性的，因为它们不会立即计算出结果。取而代之的是，他们只记得应用于某些基本数据集（例如文件）的转换。仅当动作要求将结果返回给驱动程序时才计算转换。这种设计使 Spark 可以更高效地运行。例如，我们可以认识到通过 map 创建的数据集将用于 reduce 中，并且仅将 reduce 的结果返回给驱动程序，而不是将较大的 maped 数据集返回给驱动程序。</p>
+<p>默认情况下，每次在其上执行操作时，可能都会重新计算每个转换后的 RDD。但是，您也可以使用 persist（或缓存）方法将 RDD 保留在内存中，在这种情况下，Spark 会将元素保留在群集中，以便下次查询时可以更快地进行访问。还支持将 RDD 持久存储在磁盘上，或在多个节点之间复制。</p>
+<h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><p>为了说明 RDD 的基本操作，请看以下的简单程序：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lines = sc.textFile(<span class="hljs-string">"data.txt"</span>)</span><br><span class="line">lineLengths = lines.map(<span class="hljs-keyword">lambda</span> s: len(s))</span><br><span class="line">totalLength = lineLengths.reduce(<span class="hljs-keyword">lambda</span> a, b: a + b)</span><br></pre></td></tr></table></figure>
+
+<p>第一行定义了一个由外部文件产生的基本 RDD。这个数据集不是从内存中载入的也不是由其他操作产生的；lines 仅仅是一个指向文件的指针。第二行将 lineLengths 定义为 map 操作的结果。再强调一次，由于惰性求值的缘故，lineLengths 并<strong>不会</strong>被立即计算得到。最后，我们运行了 reduce 操作，这是一个启动操作。从这个操作开始，Spark 将计算过程划分成许多任务并在多机上运行，每台机器运行自己部分的 map 操作和 reduce 操作，最终将自己部分的运算结果返回给驱动程序。</p>
+<p>如果w筽们虚妄以后重复使用 lineLengths，只需要在 reduce 前加入下面这行代码：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lineLengths.persist()</span><br></pre></td></tr></table></figure>
+
+<p>这条代码将使得 lineLengths 在第一次计算生成之后保存在内存中。</p>
+<h3 id="向-Spark-传递函数"><a href="#向-Spark-传递函数" class="headerlink" title="向 Spark 传递函数"></a>向 Spark 传递函数</h3><p>Spark 的 API 严重依赖于向驱动程序传递函数作为参数来在集群上运行。有三种推荐的方法来传递函数作为参数：</p>
+<ul>
+<li><a href="https://docs.python.org/3/tutorial/controlflow.html#lambda-expressions" target="_blank" rel="noopener">Lambda 表达式</a>，简单的函数可以直接写成一个 lambda 表达式（lambda 表达式不支持多语句函数和无返回值的语句）。</li>
+<li>对于代码很长的函数，在 Spark 的函数调用中定义。</li>
+<li>模块中的顶层函数。</li>
+</ul>
+<p>例如，传递一个无法转化为 lambda 表达式的长函数，可以像下面代码这样：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-string">"""MyScript.py"""</span></span><br><span class="line"><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:</span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">myFunc</span><span class="hljs-params">(s)</span>:</span></span><br><span class="line">        words = s.split(<span class="hljs-string">" "</span>)</span><br><span class="line">        <span class="hljs-keyword">return</span> len(words)</span><br><span class="line"></span><br><span class="line">    sc = SparkContext(...)</span><br><span class="line">    sc.textFile(<span class="hljs-string">"file.txt"</span>).map(myFunc)</span><br></pre></td></tr></table></figure>
+
+<p>值得指出的是，也可以传递类实例中方法的引用（与单例对象相反），这种传递方法会将整个对象传递过去。比如，考虑以下代码：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyClass</span><span class="hljs-params">(object)</span>:</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">func</span><span class="hljs-params">(self, s)</span>:</span></span><br><span class="line">        <span class="hljs-keyword">return</span> s</span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">doStuff</span><span class="hljs-params">(self, rdd)</span>:</span></span><br><span class="line">        <span class="hljs-keyword">return</span> rdd.map(self.func)</span><br></pre></td></tr></table></figure>
+
+<p>在这里，如果我们创建了一个新的 MyClass 对象，然后对它调用 doStuff  方法，map 会用到这个对象中方法的引用，所以整个对象都需要传递到集群中。</p>
+<p>还有另一种相似的写法，访问外层对象的数据域会传递整个对象的引用：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyClass</span><span class="hljs-params">(object)</span>:</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span></span><br><span class="line">        self.field = <span class="hljs-string">"Hello"</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">doStuff</span><span class="hljs-params">(self, rdd)</span>:</span></span><br><span class="line">        <span class="hljs-keyword">return</span> rdd.map(<span class="hljs-keyword">lambda</span> s: self.field + x)</span><br></pre></td></tr></table></figure>
+
+<p>此类问题最简单的避免方法就是，使用一个本地变量缓存一份这个数据域的拷贝，直接访问这个数据域：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">doStuff</span><span class="hljs-params">(self, rdd)</span>:</span></span><br><span class="line">    field = self.field</span><br><span class="line">    <span class="hljs-keyword">return</span> rdd.map(<span class="hljs-keyword">lambda</span> s: field + x)</span><br></pre></td></tr></table></figure>
+
+<h3 id="理解闭包"><a href="#理解闭包" class="headerlink" title="理解闭包"></a>理解闭包</h3><p>关于 Spark 的难点之一是理解在跨集群执行代码时变量和方法的作用域和生命周期。修改超出其作用域的 RDD 操作可能经常引起混乱。在下面的示例中，我们将介绍使用 foreach() 递增计数器的代码，其他操作也会导致类似的问题。</p>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><p>考虑以下朴素的 RDD 元素求和，其结果可能会有所不同，具体取决于是否在同一 JVM 中进行执行。 一个常见的例子是在本地模式下运行 Spark（–master = local [n]）而不是将 Spark 应用程序部署到集群上（例如，通过将 spark-submit 提交给 YARN）：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">counter = <span class="hljs-number">0</span></span><br><span class="line">rdd = sc.parallelize(data)</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment"># Wrong: Don't do this!!</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">increment_counter</span><span class="hljs-params">(x)</span>:</span></span><br><span class="line">    <span class="hljs-keyword">global</span> counter</span><br><span class="line">    counter += x</span><br><span class="line">rdd.foreach(increment_counter)</span><br><span class="line"></span><br><span class="line">print(<span class="hljs-string">"Counter value: "</span>, counter)</span><br></pre></td></tr></table></figure>
+
+<h4 id="本地-vs-集群模式"><a href="#本地-vs-集群模式" class="headerlink" title="本地 vs 集群模式"></a>本地 vs 集群模式</h4><p>上面的代码的行为是未定义的，可能无法按预期工作。为了执行作业，Spark 将 RDD 操作的处理分解为小任务，每个任务都由执行程序执行。在执行之前，Spark 会计算任务的结束时间。闭包是执行者在 RDD 上执行其计算所必须可见的那些变量和方法（在本例中为foreach（））。此闭包被序列化并发送给每个执行器。</p>
+<p>发送给每个执行者的闭包中的变量现在都是副本，因此，在 foreach 函数中引用计数器时，它不再是驱动程序节点上的计数器。驱动程序节点的内存中仍然存在一个计数器，但是执行者将不再看到该计数器！执行者仅从序列化闭包中看到副本。因此，由于对计数器的所有操作都引用了序列化闭包内的值，所以计数器的最终值仍将为零。</p>
+<p>在本地模式下，在某些情况下，foreach 函数实际上将在与驱动程序相同的 JVM 中执行，并且将引用相同的原始计数器，并且可能会对其进行实际更新。</p>
+<p>为了确保在此类情况下行为明确，应使用累加器。 Spark 中的累加器专门用于提供一种机制，用于在集群中的各个工作节点之间拆分执行时安全地更新变量。本指南的“累加器”部分将详细讨论这些内容。</p>
+<p>通常，闭包——像循环或局部定义的方法之类的结构，不应用于改变某些全局状态。 Spark 不定义或保证从闭包外部引用的对象的突变行为。某些执行此操作的代码可能会在本地模式下工作，但这只是偶然的情况，此类代码在分布式模式下将无法正常运行。如果需要一些全局聚合，请使用累加器。</p>
+<h4 id="打印-RDD-的元素"><a href="#打印-RDD-的元素" class="headerlink" title="打印 RDD 的元素"></a>打印 RDD 的元素</h4><p>另一个常见用法是尝试使用 rdd.foreach(println) 或 rdd.map(println) 打印出 RDD 的元素。 在单台机器上，这将生成预期的输出并打印所有 RDD 的元素。 但是，在集群模式下，执行者正在调用 stdout 的输出现在写入执行者的 stdout，而不是驱动程序上的那个，因此驱动程序上的 stdout 不会显示这些信息！ 要在驱动程序上打印所有元素，可以使用 collect() 方法先将 RDD 带到驱动程序节点：rdd.collect().foreach(println)。 但是，这可能会导致驱动程序用尽内存，因为 collect() 将整个 RDD 提取到一台计算机上。 如果只需要打印 RDD 的一些元素，更安全的方法是使用 take()：rdd.take(100).foreach(println)。</p>
+<h3 id="使用键值对"><a href="#使用键值对" class="headerlink" title="使用键值对"></a>使用键值对</h3><p>尽管大多数 Spark 操作可在包含任何类型的对象的 RDD 上运行，但一些特殊操作仅可用于键-值对的 RDD。 这类操作中最常见的是分布式 shuffle 操作，例如通过键对元素进行分组或聚合。</p>
+<p>在 Python中，这些操作适用于包含内置 Python 元组（例如（1、2））的 RDD。 只需创建这样的元组，然后调用所需的操作即可。</p>
+<p>例如，以下代码对键值对使用 reduceByKey 操作来统计文件中每一行文本出现的次数：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lines = sc.textFile(<span class="hljs-string">"data.txt"</span>)</span><br><span class="line">pairs = lines.map(<span class="hljs-keyword">lambda</span> s: (s, <span class="hljs-number">1</span>))</span><br><span class="line">counts = pairs.reduceByKey(<span class="hljs-keyword">lambda</span> a, b: a + b)</span><br></pre></td></tr></table></figure>
+
+<p>例如，我们还可以使用 counts.sortByKey() 对字母对进行排序，最后使用 counts.collect() 将它们作为对象列表返回。</p>
+<h3 id="Transformations-操作"><a href="#Transformations-操作" class="headerlink" title="Transformations 操作"></a>Transformations 操作</h3><p>下面的表格列出了 Spark 支持的常用 Transformations 操作。详细细节，请查阅 RDD API文档（<a href="http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.rdd.RDD" target="_blank" rel="noopener">Scala</a>, <a href="http://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/api/java/JavaRDD.html" target="_blank" rel="noopener">Java</a>, <a href="http://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD" target="_blank" rel="noopener">Python</a>, <a href="http://spark.apache.org/docs/latest/api/R/index.html" target="_blank" rel="noopener">R</a>）和键值对 RDD 函数文档 （<a href="http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.rdd.PairRDDFunctions" target="_blank" rel="noopener">Scala</a>, <a href="http://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/api/java/JavaPairRDD.html" target="_blank" rel="noopener">Java</a>）。</p>
+<p>（注：次部分翻译比较简略，仅供参考，具体细节请看文档）</p>
+<table>
+<thead>
+<tr>
+<th align="left">Transformation</th>
+<th align="left">Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>map</strong>(<em>func</em>)</td>
+<td align="left">返回一个新的分布数据集，由原数据集元素经 func 处理后的结果组成</td>
+</tr>
+<tr>
+<td align="left"><strong>filter</strong>(<em>func</em>)</td>
+<td align="left">返回一个新的数据集，由传给func 返回 True 的原数据集元素组成</td>
+</tr>
+<tr>
+<td align="left"><strong>flatMap</strong>(<em>func</em>)</td>
+<td align="left">与 map 类似，但是每个传入元素可能有 0 或多个返回值，func 可以返回一个序列而不是一个值</td>
+</tr>
+<tr>
+<td align="left"><strong>mapPartitions</strong>(<em>func</em>)</td>
+<td align="left">类似 map，但是 RDD 的每个分片都会分开独立运行，所以 func 的参数和返回值必须都是迭代器</td>
+</tr>
+<tr>
+<td align="left"><strong>mapPartitionsWithIndex</strong>(<em>func</em>)</td>
+<td align="left">类似 mapParitions，但是 func 有两个参数，第一个是分片的序号，第二个是迭代器。返回值还是迭代器</td>
+</tr>
+<tr>
+<td align="left"><strong>sample</strong>(<em>withReplacement</em>, <em>fraction</em>, <em>seed</em>)</td>
+<td align="left">使用提供的随机数种子取样，然后替换或不替换</td>
+</tr>
+<tr>
+<td align="left"><strong>union</strong>(<em>otherDataset</em>)</td>
+<td align="left">返回新的数据集，包括原数据集和参数数据集的所有元素</td>
+</tr>
+<tr>
+<td align="left"><strong>intersection</strong>(<em>otherDataset</em>)</td>
+<td align="left">返回新数据集，是两个集的交集</td>
+</tr>
+<tr>
+<td align="left"><strong>distinct</strong>([<em>numPartitions</em>]))</td>
+<td align="left">返回新的集，包括原集中的不重复元素返回新的集，包括原集中的不重复元素</td>
+</tr>
+<tr>
+<td align="left"><strong>groupByKey</strong>([<em>numPartitions</em>])</td>
+<td align="left">当用于键值对 RDD 时返回 (键，值迭代器) 对的数据集</td>
+</tr>
+<tr>
+<td align="left"><strong>reduceByKey</strong>(<em>func</em>, [<em>numPartitions</em>])</td>
+<td align="left">当用于键值对 RDD 时返回 (键，值迭代器) 对的数据集。其中每个键的值使用给定的 reduce 函数进行汇总</td>
+</tr>
+<tr>
+<td align="left"><strong>aggregateByKey</strong>(<em>zeroValue</em>)(<em>seqOp</em>, <em>combOp</em>, [<em>numPartitions</em>])</td>
+<td align="left">用于键值对 RDD 时返回（K，U）对集，对每一个 Key 的 value进行聚集计算</td>
+</tr>
+<tr>
+<td align="left"><strong>sortByKey</strong>([<em>ascending</em>], [<em>numPartitions</em>])</td>
+<td align="left">用于键值对 RDD 时会返回 RDD 按键的顺序排序，升降序由第一个参数决定</td>
+</tr>
+<tr>
+<td align="left"><strong>join</strong>(<em>otherDataset</em>, [<em>numPartitions</em>])</td>
+<td align="left">用于键值对 (K, V) 和 (K, W) RDD时返回 (K, (V, W)) 对 RDD</td>
+</tr>
+<tr>
+<td align="left"><strong>cogroup</strong>(<em>otherDataset</em>, [<em>numPartitions</em>])</td>
+<td align="left">用于两个键值对RDD时返回 (K, (V 迭代器， W 迭代器)) RDD</td>
+</tr>
+<tr>
+<td align="left"><strong>cartesian</strong>(<em>otherDataset</em>)</td>
+<td align="left">用于 T 和 U 类型 RDD 时返回 (T, U) 对类型键值对 RDD</td>
+</tr>
+<tr>
+<td align="left"><strong>pipe</strong>(<em>command</em>, <em>[envVars]</em>)</td>
+<td align="left">通过 shell 命令管道处理每个 RDD 分片</td>
+</tr>
+<tr>
+<td align="left"><strong>coalesce</strong>(<em>numPartitions</em>)</td>
+<td align="left">把 RDD 的分片数量降低到参数大小</td>
+</tr>
+<tr>
+<td align="left"><strong>repartition</strong>(<em>numPartitions</em>)</td>
+<td align="left">重新打乱 RDD 中元素顺序并重新分片，数量由参数决定</td>
+</tr>
+<tr>
+<td align="left"><strong>repartitionAndSortWithinPartitions</strong>(<em>partitioner</em>)</td>
+<td align="left">按照参数给定的分片器重新分片，同时每个分片内部按照键排序</td>
+</tr>
+</tbody></table>
+<h3 id="Actions-操作"><a href="#Actions-操作" class="headerlink" title="Actions 操作"></a>Actions 操作</h3><p>下面的表格列出了 Spark 支持的常用 Actions 操作。详细细节，请查阅 RDD API文档 （<a href="http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.rdd.RDD" target="_blank" rel="noopener">Scala</a>, <a href="http://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/api/java/JavaRDD.html" target="_blank" rel="noopener">Java</a>, <a href="http://spark.apache.org/docs/latest/api/python/pyspark.html#pyspark.RDD" target="_blank" rel="noopener">Python</a>, <a href="http://spark.apache.org/docs/latest/api/R/index.html" target="_blank" rel="noopener">R</a>）和键值对 RDD 函数文档 （<a href="http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.rdd.PairRDDFunctions" target="_blank" rel="noopener">Scala</a>, <a href="http://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/api/java/JavaPairRDD.html" target="_blank" rel="noopener">Java</a>）。</p>
+<p>（注：次部分翻译比较简略，仅供参考，具体细节请看文档）</p>
+<table>
+<thead>
+<tr>
+<th align="left">Action</th>
+<th align="left">Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>reduce</strong>(<em>func</em>)</td>
+<td align="left">使用 func 进行聚合计算，func 的参数是两个，返回值一个，两次 func 运行应当是完全解耦的，这样才能正确地并行运算</td>
+</tr>
+<tr>
+<td align="left"><strong>collect</strong>()</td>
+<td align="left">向驱动程序返回数据集的元素组成的数组</td>
+</tr>
+<tr>
+<td align="left"><strong>count</strong>()</td>
+<td align="left">返回数据集元素的数量</td>
+</tr>
+<tr>
+<td align="left"><strong>first</strong>()</td>
+<td align="left">返回数据集的第一个元素</td>
+</tr>
+<tr>
+<td align="left"><strong>take</strong>(<em>n</em>)</td>
+<td align="left">返回前n个元素组成的数组</td>
+</tr>
+<tr>
+<td align="left"><strong>takeSample</strong>(<em>withReplacement</em>, <em>num</em>, [<em>seed</em>])</td>
+<td align="left">返回一个由原数据集中任意 num 个元素的数组，并且替换之</td>
+</tr>
+<tr>
+<td align="left"><strong>takeOrdered</strong>(<em>n</em>, <em>[ordering]</em>)</td>
+<td align="left">返回排序后的前 n 个元素</td>
+</tr>
+<tr>
+<td align="left"><strong>saveAsTextFile</strong>(<em>path</em>)</td>
+<td align="left">将数据集的元素写成文本文件</td>
+</tr>
+<tr>
+<td align="left"><strong>saveAsSequenceFile</strong>(<em>path</em>) (Java and Scala)</td>
+<td align="left">数据集的元素写成序列文件，这个 API 只能用于 Java 和 Scala 程序</td>
+</tr>
+<tr>
+<td align="left"><strong>saveAsObjectFile</strong>(<em>path</em>) (Java and Scala)</td>
+<td align="left">将数据集的元素使用 Java 的序列化特性写到文件中，这个 API 只能用于 Java 和 Scala 程序</td>
+</tr>
+<tr>
+<td align="left"><strong>countByKey</strong>()</td>
+<td align="left">只能用于键值对 RDD，返回一个 (K, int)  hashmap，返回每个 key 的出现次数</td>
+</tr>
+<tr>
+<td align="left"><strong>foreach</strong>(<em>func</em>)</td>
+<td align="left">对数据集的每个元素执行 func, 通常用于完成一些带有副作用的函数，比如更新累加器（见下文）或与外部存储交互等</td>
+</tr>
+</tbody></table>
+<p>Spark RDD API 还展示了某些操作的异步版本，例如 foreachAsync for foreach，它们立即将FutureAction 返回给调用方，而不是在操作完成时阻塞。 这可用于管理或等待动作的异步执行。</p>
+<h3 id="Shuffle-操作"><a href="#Shuffle-操作" class="headerlink" title="Shuffle 操作"></a>Shuffle 操作</h3><p>Spark 中的某些操作会触发一个称为 shuffle 的事件。 shuffle 是 Spark 的一种用于重新分配数据的机制，可以跨分区对数据进行不同的分组。 这通常涉及跨执行程序和机器复制数据，从而使得 shuffle 成为复杂且高代价的操作。 </p>
+<h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>要了解 shuffle 期间发生的情况，我们可以考虑 reduceByKey 操作的示例。 reduceByKey 操作会生成一个新的 RDD，其中将单个键的所有值组合为一个元组——该键以及针对与该键关联的所有值执行 reduce 函数的结果。难点在于，并非每个键的所有值都必须位于同一分区，甚至同一台计算机上，但是必须将它们放在同一位置才能计算结果。</p>
+<p>在 Spark 中，数据通常不会跨分区分布在特定操作的必要位置。在计算期间，单个任务将在单个分区上进行操作-因此，为了组织要执行的单个 reduceByKey reduce 任务的所有数据，Spark 需要执行所有操作。它必须从所有分区读取以找到所有键的所有值，然后将跨分区的值汇总在一起以计算每个键的最终结果——这称为 shuffle。</p>
+<p>尽管新改组后的数据的每个分区中的元素集都是确定性的，分区本身的顺序也是如此，但这些元素的顺序不是确定性的。如果你希望在 shuffle 后能使数据有序，则可以使用：</p>
+<ul>
+<li>mapPartitions 使用例如. sorted 对每个分区进行排序</li>
+<li>repartitionAndSortWithinPartitions 可以有效地对分区进行排序，同时进行重新分区</li>
+<li>排序以生成全局排序的 RDD</li>
+</ul>
+<p>可能导致 shuffle 的操作包括重新分区操作（ <a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#RepartitionLink" target="_blank" rel="noopener">repartition</a> 和 <a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#CoalesceLink" target="_blank" rel="noopener">coalesce</a>），ByKey操作（除计数）（例如  <a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#GroupByLink" target="_blank" rel="noopener">groupByKey</a> 和 <a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#ReduceByLink" target="_blank" rel="noopener">reduceByKey</a>）以及联接操作（例如 <a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#CogroupLink" target="_blank" rel="noopener">cogroup</a> 和 <a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#JoinLink" target="_blank" rel="noopener">join</a>）。</p>
+<h4 id="性能影响"><a href="#性能影响" class="headerlink" title="性能影响"></a>性能影响</h4><p>shuffle 是一项高代价的操作，因为它涉及磁盘 I/O，数据序列化和网络 I/O。为了组织随机数据，Spark 生成任务集——map 任务以组织数据，以及一组 reduce 任务来聚合数据。此术语来自 MapReduce，与 Spark 的 map 和reduce 操作没有直接关系。</p>
+<p>在内部，单个 map 任务的结果会保留在内存中，直到无法容纳为止。然后，根据目标分区对它们进行排序并写入单个文件。在 reduce 方面，任务读取相关的已排序块。</p>
+<p>某些 shuffle 操作会占用大量的堆内存，因为它们在转移它们之前或之后采用内存中的数据结构来组织记录。具体来说，reduceByKey 和a ggregateByKey 在 map 侧创建这些结构，而 ByKey 操作在 reduce 侧生成这些结构。当内存存不下数据是时，Spark 会将这些表溢出到磁盘上，从而产生磁盘 I/O 的额外开销并增加垃圾回收。</p>
+<p>shuffle 还会在磁盘上生成大量中间文件。从 Spark 1.3 开始，将保留这些文件直到不再使用相应的 RDD 并进行垃圾回收为止。这样做是为了在重新计算沿袭时无需重新创建 shuffle 文件。如果应用程序保留了对这些 RDD 的引用，或者如果 GC 不经常启动，则垃圾回收可能仅在很长一段时间后才会发生。这意味着长时间运行的 Spark 作业可能会占用大量磁盘空间。在配置 Spark 上下文时，临时存储目录由 spark.local.dir 配置参数指定。</p>
+<p>可以通过调整各种配置参数来调整 shuffle 行为。请参阅<a href="http://spark.apache.org/docs/latest/configuration.html" target="_blank" rel="noopener">Spark Configuration Guide</a>中的“shuffle behavior”部分。</p>
+<h3 id="RDD-持久化"><a href="#RDD-持久化" class="headerlink" title="RDD 持久化"></a>RDD 持久化</h3><p>Spark 的一个重要功能就是将数据集持久化（或缓存）到内存中以便在多个操作中重复使用。当我们持久化一个RDD 时，每一个节点将这个 RDD 的每一个分片计算并保存到内存中以便在下次对这个数据集（或者这个数据集衍生的数据集）的计算中可以复用。这使得接下来的计算过程速度能够加快（经常能加快超过十倍的速度）。缓存是加快迭代算法和快速交互过程速度的关键工具。</p>
+<p>你可以通过调用 persist() 或 cache() 方法来标记一个想要持久化的 RDD。在第一次被计算产生之后，它就会始终停留在节点的内存中。Spark 的缓存是具有容错性的——如果 RDD 的任意一个分片丢失了，Spark 就会依照这个RDD 产生的转化过程自动重算一遍。</p>
+<p>另外，每一个持久化的 RDD 都有一个可变的<strong>存储级别</strong>，这个级别使得用户可以改变 RDD 持久化的储存位置。比如，你可以将数据集持久化到硬盘上，也可以将它以序列化的 Java 对象形式（节省空间）持久化到内存中，还可以将这个数据集在节点之间复制。这些存储级别都是通过向 persist() 传递一个 StorageLevel 对象（<a href="https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.storage.StorageLevel" target="_blank" rel="noopener">Scala</a>, <a href="https://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/storage/StorageLevel.html" target="_blank" rel="noopener">Java</a>, <a href="https://spark.apache.org/docs/latest/api/python/pyspark.storagelevel.StorageLevel-class.html" target="_blank" rel="noopener">Python</a>）来设置的。cache() 方法是使用默认存储等级 StorageLevel.MEMORY_ONLY（在内存中存储反序列化对象）的缩写。存储级别的所有种类请见下表：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Storage Level</th>
+<th align="left">Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">MEMORY_ONLY</td>
+<td align="left">Store RDD as deserialized Java objects in the JVM. If the RDD does not fit in memory, some partitions will not be cached and will be recomputed on the fly each time they’re needed. This is the default level.</td>
+</tr>
+<tr>
+<td align="left">MEMORY_AND_DISK</td>
+<td align="left">Store RDD as deserialized Java objects in the JVM. If the RDD does not fit in memory, store the partitions that don’t fit on disk, and read them from there when they’re needed.</td>
+</tr>
+<tr>
+<td align="left">MEMORY_ONLY_SER (Java and Scala)</td>
+<td align="left">Store RDD as <em>serialized</em> Java objects (one byte array per partition). This is generally more space-efficient than deserialized objects, especially when using a <a href="http://spark.apache.org/docs/latest/tuning.html" target="_blank" rel="noopener">fast serializer</a>, but more CPU-intensive to read.</td>
+</tr>
+<tr>
+<td align="left">MEMORY_AND_DISK_SER (Java and Scala)</td>
+<td align="left">Similar to MEMORY_ONLY_SER, but spill partitions that don’t fit in memory to disk instead of recomputing them on the fly each time they’re needed.</td>
+</tr>
+<tr>
+<td align="left">DISK_ONLY</td>
+<td align="left">Store the RDD partitions only on disk.</td>
+</tr>
+<tr>
+<td align="left">MEMORY_ONLY_2, MEMORY_AND_DISK_2, etc.</td>
+<td align="left">Same as the levels above, but replicate each partition on two cluster nodes.</td>
+</tr>
+<tr>
+<td align="left">OFF_HEAP (experimental)</td>
+<td align="left">Similar to MEMORY_ONLY_SER, but store the data in <a href="http://spark.apache.org/docs/latest/configuration.html#memory-management" target="_blank" rel="noopener">off-heap memory</a>. This requires off-heap memory to be enabled.</td>
+</tr>
+</tbody></table>
+<p><strong>注意</strong>：在 Python 中，储存的对象永远是通过 <a href="https://docs.python.org/2/library/pickle.html" target="_blank" rel="noopener">Pickle</a> 库序列化过的，所以设不设置序列化级别不会产生影响。在 Python 中可用的存储等级有 <code>MEMORY_ONLY</code>, <code>MEMORY_ONLY_2</code>, <code>MEMORY_AND_DISK</code>, <code>MEMORY_AND_DISK_2</code>, <code>DISK_ONLY</code>, 和 <code>DISK_ONLY_2</code>。</p>
+<p>Spark 还会在 shuffle 操作（比如 reduceByKey）中自动储存中间数据，即使用户没有调用 persist。这是为了防止在 shuffle 过程中某个节点出错而导致的全部重算。不过如果用户打算复用某些结果 RDD，我们仍然建议用户对结果RDD手动调用 persist，而不是依赖自动持久化机制。</p>
+<h4 id="如何选择存储级别"><a href="#如何选择存储级别" class="headerlink" title="如何选择存储级别"></a>如何选择存储级别</h4><p>Spark 的存储级别是为了提供内存使用与 CPU 效率之间的不同取舍平衡程度。我们建议用户通过考虑以下流程来选择合适的存储级别：</p>
+<ul>
+<li>如果你的 RDD 很适合默认的级别（MEMORY_ONLY），那么久使用默认级别吧。这是 CPU 最高效运行的选择，能够让 RDD 上的操作以最快速度运行。</li>
+<li>否则，试试MEMORY_ONLY_SER选项并且 <a href="http://spark.apache.org/docs/latest/tuning.html" target="_blank" rel="noopener">选择一个快的序列化库</a> 来使对象的空间利用率更高，同时尽量保证访问速度足够快。</li>
+<li>不要往硬盘上持久化，除非重算数据集的过程代价确实很昂贵，或者这个过程过滤了巨量的数据。否则，重新计算分片有可能跟读硬盘速度一样快。</li>
+<li>如果你希望快速的错误恢复（比如用 Spark 来处理 web 应用的请求），使用复制级别。所有的存储级别都提供了重算丢失数据的完整容错机制，但是复制一份副本能省去等待重算的时间。</li>
+</ul>
+<h4 id="删除数据"><a href="#删除数据" class="headerlink" title="删除数据"></a>删除数据</h4><p>Spark 会自动监视每个节点的缓存使用同时使用 LRU 算法丢弃旧数据分片。如果你想手动删除某个 RDD 而不是等待它被自动删除，调用 RDD.unpersist() 方法。</p>
+<h2 id="共享变量"><a href="#共享变量" class="headerlink" title="共享变量"></a>共享变量</h2><p>通常情况下，当一个函数传递给一个在远程集群节点上运行的 Spark 操作（比如 map 和 reduce）时，Spark 会对涉及到的变量的所有副本执行这个函数。这些变量会被复制到每个机器上，而且这个过程不会被反馈给驱动程序。通常情况下，在任务之间读写共享变量是很低效的。但是，Spark 仍然提供了有限的两种共享变量类型用于常见的使用场景：广播变量和累加器。</p>
+<h3 id="广播变量"><a href="#广播变量" class="headerlink" title="广播变量"></a>广播变量</h3><p>广播变量允许程序员在每台机器上保持一个只读变量的缓存而不是将一个变量的拷贝传递给各个任务。它们可以被使用，比如，给每一个节点传递一份大输入数据集的拷贝是很低效的。Spark 试图使用高效的广播算法来分布广播变量，以此来降低通信花销。</p>
+<p>Spark Actions 是通过一组阶段执行的，这些阶段由分布式 “shuffle” 操作分开。 Spark 自动广播每个阶段中任务所需的共用数据。 在运行每个任务之前，以这种方式广播的数据以序列化形式缓存并反序列化。 这意味着仅当跨多个阶段的任务需要相同数据或以反序列化形式缓存数据非常重要时，显式创建广播变量才有用。</p>
+<p>可以通过<code>SparkContext.broadcast(v)</code>来从变量 v 创建一个广播变量。这个广播变量是 v 的一个包装，同时它的值可以功过调用<code>value</code>方法来获得。以下的代码展示了这一点：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>broadcastVar = sc.broadcast([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>])</span><br><span class="line">&lt;pyspark.broadcast.Broadcast object at <span class="hljs-number">0x102789f10</span>&gt;</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>broadcastVar.value</span><br><span class="line">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]</span><br></pre></td></tr></table></figure>
+
+<p>在广播变量被创建之后，在所有函数中都应当使用它来代替原来的变量 v，这样就可以保证 v 在节点之间只被传递一次。另外，v 变量在被广播之后不应该再被修改了，这样可以确保每一个节点上储存的广播变量的一致性（如果这个变量后来又被传输给一个新的节点）。</p>
+<h3 id="累加器"><a href="#累加器" class="headerlink" title="累加器"></a>累加器</h3><p>累加器是在一个相关过程中只能被”累加”的变量，对这个变量的操作可以有效地被并行化。它们可以被用于实现计数器（就像在 MapReduce 过程中）或求和运算。Spark 原生支持对数字类型的累加器，程序员也可以为其他新的类型添加支持。累加器被以一个名字创建之后，会在 Spark 的 UI 中显示出来。这有助于了解计算的累进过程（注意：目前 Python 中不支持这个特性）。</p>
+<p>可以通过<code>SparkContext.accumulator(v)</code>来从变量 v 创建一个累加器。在集群中运行的任务随后可以使用 <code>add</code> 方法或 += 操作符（在 Scala 和 Python 中）来向这个累加器中累加值。但是，他们不能读取累加器中的值。只有驱动程序可以读取累加器中的值，通过累加器的 <code>value</code> 方法。</p>
+<p>以下的代码展示了向一个累加器中累加数组元素的过程：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>accum = sc.accumulator(<span class="hljs-number">0</span>)</span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>accum</span><br><span class="line">Accumulator&lt;id=<span class="hljs-number">0</span>, value=<span class="hljs-number">0</span>&gt;</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>sc.parallelize([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).foreach(<span class="hljs-keyword">lambda</span> x: accum.add(x))</span><br><span class="line">...</span><br><span class="line"><span class="hljs-number">10</span>/<span class="hljs-number">09</span>/<span class="hljs-number">29</span> <span class="hljs-number">18</span>:<span class="hljs-number">41</span>:<span class="hljs-number">08</span> INFO SparkContext: Tasks finished <span class="hljs-keyword">in</span> <span class="hljs-number">0.317106</span> s</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">&gt;&gt;&gt; </span>accum.value</span><br><span class="line"><span class="hljs-number">10</span></span><br></pre></td></tr></table></figure>
+
+<p>这段代码利用了累加器对 int 类型的内建支持，程序员可以通过继承 <a href="https://spark.apache.org/docs/latest/api/python/pyspark.accumulators.AccumulatorParam-class.html" target="_blank" rel="noopener">AccumulatorParam</a> 类来创建自己想要的类型支持。AccumulatorParam 的接口提供了两个方法：<code>zero</code> 用于为你的数据类型提供零值；<code>addInPlace</code>用于计算两个值得和。比如，假设我们有一个<code>Vector</code>类表示数学中的向量，我们可以这样写：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VectorAccumulatorParam</span><span class="hljs-params">(AccumulatorParam)</span>:</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">zero</span><span class="hljs-params">(self, initialValue)</span>:</span></span><br><span class="line">        <span class="hljs-keyword">return</span> Vector.zeros(initialValue.size)</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">addInPlace</span><span class="hljs-params">(self, v1, v2)</span>:</span></span><br><span class="line">        v1 += v2</span><br><span class="line">        <span class="hljs-keyword">return</span> v1</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment"># Then, create an Accumulator of this type:</span></span><br><span class="line">vecAccum = sc.accumulator(Vector(...), VectorAccumulatorParam())</span><br></pre></td></tr></table></figure>
+
+<p>累加器的更新操作只会被<strong>运行一次</strong>，Spark 提供了保证，每个任务中对累加器的更新操作都只会被运行一次。比如，重启一个任务不会再次更新累加器。在转化过程中，用户应该留意每个任务的更新操作在任务或作业重新运算时是否被执行了超过一次。</p>
+<p>累加器不会改变 Spark 的惰性求值模型。如果累加器在对 RDD 的操作中被更新了，它们的值只会在 action 操作中作为 RDD 计算过程中的一部分被更新。所以，在一个懒惰的转化操作中调用累加器的更新，并没法保证会被及时运行。下面的代码段展示了这一点：</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">accum = sc.accumulator(<span class="hljs-number">0</span>)</span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g</span><span class="hljs-params">(x)</span>:</span></span><br><span class="line">    accum.add(x)</span><br><span class="line">    <span class="hljs-keyword">return</span> f(x)</span><br><span class="line">data.map(g)</span><br><span class="line"><span class="hljs-comment"># Here, accum is still 0 because no actions have caused the `map` to be computed.</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="在集群上部署"><a href="#在集群上部署" class="headerlink" title="在集群上部署"></a>在集群上部署</h2><p>这个<a href="https://spark.apache.org/docs/latest/submitting-applications.html" target="_blank" rel="noopener">应用提交指南</a>描述了一个应用被提交到集群上的过程。简而言之，只要你把你的应用打成了 JAR 包（ Java/Scala 应用）或 .py 文件的集合或 .zip 压缩包( Python 应用)，bin/spark-submit 脚本会将应用提交到任意支持的集群管理器上。</p>
+<h2 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h2><p>Spark 对单元测试是友好的，可以与任何流行的单元测试框架相容。你只需要在测试中创建一个 <code>SparkContext</code> ，并如前文所述将 maste r的 URL 设为 local，执行你的程序，最后调用 <code>SparkContext.stop()</code> 来终止运行。请确保你在 <code>finally</code> 块或测试框架的 <code>tearDown</code> 方法中终止了上下文，因为 Spark 不支持两个上下文在一个程序中同时运行。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>为了给你优化代码提供帮助，<a href="https://spark.apache.org/docs/latest/configuration.html" target="_blank" rel="noopener">配置指南</a>和<a href="https://spark.apache.org/docs/latest/tuning.html" target="_blank" rel="noopener">调优指南</a>提供了关于最佳实践的一些信息。确保你的数据储存在以高效的格式储存在内存中，这很重要。为了给你部署应用提供帮助，<a href="https://spark.apache.org/docs/latest/cluster-overview.html" target="_blank" rel="noopener">集群模式概览</a>描述了许多内容，包括分布式操作和支持的集群管理器。<br>最后，完整的API文档在这里。<a href="http://spark.apache.org/docs/latest/api/scala/#org.apache.spark.package" target="_blank" rel="noopener">Scala</a>, <a href="http://spark.apache.org/docs/latest/api/java/" target="_blank" rel="noopener">Java</a>, <a href="http://spark.apache.org/docs/latest/api/python/" target="_blank" rel="noopener">Python</a> 和 <a href="http://spark.apache.org/docs/latest/api/R/" target="_blank" rel="noopener">R</a>。</p>
+<p><a style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px" href="https://unsplash.com/@sixteenmilesout?utm_medium=referral&amp;utm_campaign=photographer-credit&amp;utm_content=creditBadge" target="_blank" rel="noopener noreferrer" title="Download free do whatever you want high-resolution photos from Carolyn V"><span style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg" style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white" viewbox="0 0 32 32"><title>unsplash-logo</title><path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"/></svg></span><span style="display:inline-block;padding:2px 3px">Carolyn V</span></a></p>
+
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/Spark/" rel="tag">Spark</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="social-share"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css">
+<script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/alipay.jpg" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/wechatpay.jpg" alt="微信"></div>
+</a>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/posts/1f364dfa/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">RabbitMQ基础概念</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/posts/5df87593/">
+                <span class="level-item">markdown基本操作</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="title is-5 has-text-weight-normal">评论</h3>
+        
+<div id="valine-thread" class="content"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#valine-thread' ,
+        notify: false,
+        verify: false,
+        app_id: '67YP66D1kdqJwPueQ0pGewWc-gzGzoHsz',
+        app_key: 'dBYsXpznvy89hCafAtx0fE4g',
+        placeholder: 'Just go go'
+    });
+</script>
+
+    </div>
+</div>
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                    <figure class="image is-128x128 has-mb-6">
+                        <img class="" src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/v2-0e5421e09670c8ca98fe6cbba05d2de4_hd.jpg" alt="gallon">
+                    </figure>
+                    
+                    <p class="is-size-4 is-block">
+                        gallon
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        奔跑的小白
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>Hunan University</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <a href="/archives">
+                        <p class="title has-text-weight-normal">
+                            14
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <a href="/categories">
+                        <p class="title has-text-weight-normal">
+                            3
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <a href="/tags">
+                        <p class="title has-text-weight-normal">
+                            15
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/GallonHu" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/GallonHu">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/atom.xml">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Mail" href="mailto:18273170036@163.com">
+                
+                <i class="fas fa-envelope"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+
+    <div class="card widget" id="toc">
+        <div class="card-content">
+            <div class="menu">
+                <h3 class="menu-label">
+                    目录
+                </h3>
+                <ul class="menu-list"><li>
+        <a class="is-flex" href="#RDD-Programming-Guide">
+        <span class="has-mr-6">1</span>
+        <span>RDD Programming Guide</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#概述">
+        <span class="has-mr-6">1.1</span>
+        <span>概述</span>
+        </a></li><li>
+        <a class="is-flex" href="#连接-Spark">
+        <span class="has-mr-6">1.2</span>
+        <span>连接 Spark</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#初始化-Spark">
+        <span class="has-mr-6">1.2.1</span>
+        <span>初始化 Spark</span>
+        </a></li><li>
+        <a class="is-flex" href="#使用命令行">
+        <span class="has-mr-6">1.2.2</span>
+        <span>使用命令行</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#弹性分布式数据集（RDD）">
+        <span class="has-mr-6">1.3</span>
+        <span>弹性分布式数据集（RDD）</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#并行化数据集">
+        <span class="has-mr-6">1.3.1</span>
+        <span>并行化数据集</span>
+        </a></li><li>
+        <a class="is-flex" href="#外部数据集">
+        <span class="has-mr-6">1.3.2</span>
+        <span>外部数据集</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#RDD-操作">
+        <span class="has-mr-6">1.4</span>
+        <span>RDD 操作</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#基本操作">
+        <span class="has-mr-6">1.4.1</span>
+        <span>基本操作</span>
+        </a></li><li>
+        <a class="is-flex" href="#向-Spark-传递函数">
+        <span class="has-mr-6">1.4.2</span>
+        <span>向 Spark 传递函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#理解闭包">
+        <span class="has-mr-6">1.4.3</span>
+        <span>理解闭包</span>
+        </a></li><li>
+        <a class="is-flex" href="#使用键值对">
+        <span class="has-mr-6">1.4.4</span>
+        <span>使用键值对</span>
+        </a></li><li>
+        <a class="is-flex" href="#Transformations-操作">
+        <span class="has-mr-6">1.4.5</span>
+        <span>Transformations 操作</span>
+        </a></li><li>
+        <a class="is-flex" href="#Actions-操作">
+        <span class="has-mr-6">1.4.6</span>
+        <span>Actions 操作</span>
+        </a></li><li>
+        <a class="is-flex" href="#Shuffle-操作">
+        <span class="has-mr-6">1.4.7</span>
+        <span>Shuffle 操作</span>
+        </a></li><li>
+        <a class="is-flex" href="#RDD-持久化">
+        <span class="has-mr-6">1.4.8</span>
+        <span>RDD 持久化</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#共享变量">
+        <span class="has-mr-6">1.5</span>
+        <span>共享变量</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#广播变量">
+        <span class="has-mr-6">1.5.1</span>
+        <span>广播变量</span>
+        </a></li><li>
+        <a class="is-flex" href="#累加器">
+        <span class="has-mr-6">1.5.2</span>
+        <span>累加器</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#在集群上部署">
+        <span class="has-mr-6">1.6</span>
+        <span>在集群上部署</span>
+        </a></li><li>
+        <a class="is-flex" href="#单元测试">
+        <span class="has-mr-6">1.7</span>
+        <span>单元测试</span>
+        </a></li><li>
+        <a class="is-flex" href="#其他">
+        <span class="has-mr-6">1.8</span>
+        <span>其他</span>
+        </a></li></ul></li></ul>
+            </div>
+        </div>
+    </div>
+
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+            
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/Bigdata/">
+            <span class="level-start">
+                <span class="level-item">Bigdata</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Linux/">
+            <span class="level-start">
+                <span class="level-item">Linux</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Tutorials/">
+            <span class="level-start">
+                <span class="level-item">Tutorials</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/posts/918ab41d/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1508971607899-a238a095d417?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=2768&amp;q=80" alt="archlinuxa安装配置">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-11T02:07:07.000Z">2020-02-11</time></div>
+                    <a href="/posts/918ab41d/" class="title has-link-black-ter is-size-6 has-text-weight-normal">archlinuxa安装配置</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Linux/">Linux</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/fbcc746f/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="软件工具篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T02:00:14.000Z">2019-12-26</time></div>
+                    <a href="/posts/fbcc746f/" class="title has-link-black-ter is-size-6 has-text-weight-normal">软件工具篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/7309d80/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="终端利器之tmux篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T01:59:04.000Z">2019-12-26</time></div>
+                    <a href="/posts/7309d80/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之tmux篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/848c0324/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1537311597144-e497bdef2ca8?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1267&amp;q=80" alt="终端利器之vim篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-17T11:14:34.000Z">2019-12-17</time></div>
+                    <a href="/posts/848c0324/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之vim篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/eec0bc4e/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1571028634586-ae87c1a42432?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=633&amp;q=80" alt="终端利器之zsh篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-16T06:50:38.000Z">2019-12-16</time></div>
+                    <a href="/posts/eec0bc4e/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之zsh篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">13</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Archlinux/">
+                        <span class="tag">Archlinux</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Blog/">
+                        <span class="tag">Blog</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Hexo/">
+                        <span class="tag">Hexo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Install/">
+                        <span class="tag">Install</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jupyter/">
+                        <span class="tag">Jupyter</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Markdown/">
+                        <span class="tag">Markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/NTP/">
+                        <span class="tag">NTP</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Python/">
+                        <span class="tag">Python</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/RabbitMQ/">
+                        <span class="tag">RabbitMQ</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Shell/">
+                        <span class="tag">Shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Spark/">
+                        <span class="tag">Spark</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Terminal/">
+                        <span class="tag">Terminal</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Vim/">
+                        <span class="tag">Vim</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Virtualenv/">
+                        <span class="tag">Virtualenv</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Zsh/">
+                        <span class="tag">Zsh</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only has-order-3 column-right ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/Bigdata/">
+            <span class="level-start">
+                <span class="level-item">Bigdata</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Linux/">
+            <span class="level-start">
+                <span class="level-item">Linux</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/Tutorials/">
+            <span class="level-start">
+                <span class="level-item">Tutorials</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/posts/918ab41d/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1508971607899-a238a095d417?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=2768&amp;q=80" alt="archlinuxa安装配置">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-11T02:07:07.000Z">2020-02-11</time></div>
+                    <a href="/posts/918ab41d/" class="title has-link-black-ter is-size-6 has-text-weight-normal">archlinuxa安装配置</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Linux/">Linux</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/fbcc746f/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="软件工具篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T02:00:14.000Z">2019-12-26</time></div>
+                    <a href="/posts/fbcc746f/" class="title has-link-black-ter is-size-6 has-text-weight-normal">软件工具篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/7309d80/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="终端利器之tmux篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-26T01:59:04.000Z">2019-12-26</time></div>
+                    <a href="/posts/7309d80/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之tmux篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/848c0324/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1537311597144-e497bdef2ca8?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1267&amp;q=80" alt="终端利器之vim篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-17T11:14:34.000Z">2019-12-17</time></div>
+                    <a href="/posts/848c0324/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之vim篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/eec0bc4e/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1571028634586-ae87c1a42432?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=633&amp;q=80" alt="终端利器之zsh篇">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-16T06:50:38.000Z">2019-12-16</time></div>
+                    <a href="/posts/eec0bc4e/" class="title has-link-black-ter is-size-6 has-text-weight-normal">终端利器之zsh篇</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/Tutorials/">Tutorials</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">13</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Archlinux/">
+                        <span class="tag">Archlinux</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Blog/">
+                        <span class="tag">Blog</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Hexo/">
+                        <span class="tag">Hexo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Install/">
+                        <span class="tag">Install</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jupyter/">
+                        <span class="tag">Jupyter</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Markdown/">
+                        <span class="tag">Markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/NTP/">
+                        <span class="tag">NTP</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Python/">
+                        <span class="tag">Python</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/RabbitMQ/">
+                        <span class="tag">RabbitMQ</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Shell/">
+                        <span class="tag">Shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Spark/">
+                        <span class="tag">Spark</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Terminal/">
+                        <span class="tag">Terminal</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Vim/">
+                        <span class="tag">Vim</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Virtualenv/">
+                        <span class="tag">Virtualenv</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Zsh/">
+                        <span class="tag">Zsh</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="https://cdn.jsdelivr.net/gh/GallonHu/pic@master/image/iron-man.png" alt="spark基本概念" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 gallon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                <br>
+                <span id="busuanzi_container_site_uv">
+                共<span id="busuanzi_value_site_uv">0</span>个访客
+                </span>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+<script>
+var IcarusThemeSettings = {
+    article: {
+        highlight: {
+            clipboard: true,
+            fold: 'unfolded'
+        }
+    }
+};
+</script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+
+
+
+    
+    
+<script src="/js/animation.js"></script>
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+<script src="/js/gallery.js" defer></script>
+
+    
+    
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" target="_blank" rel="noopener">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+    
+    
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>
